@@ -1,0 +1,13 @@
+{
+  "plugins": {
+    "entries": {
+      "hiveclaw": {
+        "config": {
+          "rpcUrl": "https://evmrpc-testnet.0g.ai",
+          "indexerUrl": "https://indexer-storage-testnet-turbo.0g.ai",
+          "expectedChainId": 16602
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+dist
+.next
+out
+.env
+.env.local
+cache_forge
+broadcast
+cache

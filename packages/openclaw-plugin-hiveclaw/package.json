@@ -1,0 +1,41 @@
+{
+  "name": "openclaw-plugin-hiveclaw",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.33",
+    "hiveclaw-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "openclaw": "2026.4.29",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.3.24"
+  },
+  "openclaw": {
+    "extensions": ["./dist/index.js"],
+    "compat": {
+      "pluginApi": ">=2026.3.24",
+      "minGatewayVersion": "2026.3.24"
+    },
+    "build": {
+      "openclawVersion": "2026.4.29",
+      "pluginSdkVersion": "2026.4.29"
+    }
+  }
+}

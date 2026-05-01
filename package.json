@@ -1,0 +1,10 @@
+{
+  "name": "hiveclaw",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "forge test --root contracts",
+    "doctor": "node apps/hiveclaw-cli/dist/cli.js doctor"
+  }
+}
