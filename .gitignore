@@ -7,3 +7,5 @@ out
 cache_forge
 broadcast
 cache
+# Deploy script output (dry-run / local); real broadcast — copy addresses from logs into .env
+contracts/deployments/*.json

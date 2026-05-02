@@ -8,7 +8,35 @@ pnpm monorepo: **contracts** (Foundry bootstrap), **`hiveclaw-core`**, **OpenCla
 cp .env.example .env
 pnpm install
 pnpm run build
-pnpm doctor
+pnpm run doctor
+```
+
+Use `pnpm run doctor` (or `pnpm healthcheck`): bare **`pnpm doctor`** is [pnpm’s own diagnostic](https://pnpm.io/cli/doctor), not this repo’s HiveClaw check, so it usually prints nothing useful here.
+
+## Deploying contracts (testnet)
+
+Copy `.env.example` to `.env` if you have not already. Put your funded deployer secret in **`.env`** as `PRIVATE_KEY` or `HIVECLAW_CHAIN_PRIVATE_KEY` (never commit it). `pnpm deploy:testnet` runs [`dotenv-cli`](https://www.npmjs.com/package/dotenv-cli) to load `.env`, then runs Foundry’s orchestrated script [`contracts/script/DeployHiveClaw.s.sol`](contracts/script/DeployHiveClaw.s.sol), which deploys `HiveClawBootstrap` and `HiveRegistry` and prints addresses you can paste back into `.env`.
+
+```bash
+pnpm deploy:testnet
+```
+
+Equivalent without pnpm: `dotenv -e .env -- bash contracts/deploy-testnet.sh`. For ad‑hoc `forge script` commands, prefix with `dotenv -e .env --` so the key is not passed on the shell command line (see `.env.example`). RPC defaults to `HIVECLAW_RPC_URL` or 0G Galileo testnet.
+
+### Deployed contracts (reference)
+
+Hackathon deployment on **0G Galileo testnet** (chain id **16602**). Use these in `.env` if you are connecting to this deployment instead of rolling your own.
+
+| Contract | Address |
+|----------|---------|
+| `HiveClawBootstrap` | [`0x4e6A80653B419777d281622249bd49Dc35131005`](https://chainscan-galileo.0g.ai/address/0x4e6A80653B419777d281622249bd49Dc35131005) |
+| `HiveRegistry` | [`0x496A34251Da57a3C1907325884323147D549626A`](https://chainscan-galileo.0g.ai/address/0x496A34251Da57a3C1907325884323147D549626A) |
+
+```bash
+HIVECLAW_BOOTSTRAP_CONTRACT=0x4e6A80653B419777d281622249bd49Dc35131005
+HIVECLAW_HIVE_REGISTRY_CONTRACT=0x496A34251Da57a3C1907325884323147D549626A
+NEXT_PUBLIC_HIVECLAW_BOOTSTRAP_CONTRACT=0x4e6A80653B419777d281622249bd49Dc35131005
+NEXT_PUBLIC_HIVECLAW_HIVE_REGISTRY_CONTRACT=0x496A34251Da57a3C1907325884323147D549626A
 ```
 
 - **Dashboard:** `pnpm --filter hiveclaw-dashboard dev` → [http://localhost:3040/status](http://localhost:3040/status) (same env as CLI).
@@ -17,8 +45,8 @@ pnpm doctor
 ## Phase 1 exit checks
 
 1. `cd contracts && forge test`
-2. Deploy bootstrap to testnet; set `HIVECLAW_BOOTSTRAP_CONTRACT` in `.env` (see `.env.example`).
-3. `pnpm doctor` exits 0 with chain + storage skipped or OK.
+2. Deploy to testnet (`pnpm deploy:testnet` loads `.env` via dotenv-cli); paste printed addresses into `.env` (see `.env.example`).
+3. `pnpm run doctor` exits 0 with chain + storage skipped or OK.
 4. `/status` matches CLI when using the same env.
 5. OpenClaw: plugin loads; `hiveclaw_ping` runs in an agent session.
 

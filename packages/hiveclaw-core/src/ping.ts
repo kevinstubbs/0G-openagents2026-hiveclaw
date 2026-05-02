@@ -1,5 +1,6 @@
 import { loadHiveclawConfig, type HiveclawConfig } from "./config.js";
 import { getChainId, getLatestBlockNumber, readBootstrapContract } from "./chain.js";
+import { readHiveRegistrySnapshot } from "./hive-registry.js";
 import { runStorageSmoke, type StorageSmokeResult } from "./storage-smoke.js";
 
 export type HiveclawPingResult = {
@@ -7,6 +8,7 @@ export type HiveclawPingResult = {
   blockNumber: string;
   chainIdNote?: string;
   bootstrap?: { ok: true; address: string; version: string; ping: string } | { ok: false; address: string; error: string };
+  hiveRegistry?: { ok: true; address: string; version: string; nextHiveId: string } | { ok: false; address: string; error: string };
   storage: StorageSmokeResult;
 };
 
@@ -25,6 +27,22 @@ export async function runPing(overrides?: Partial<HiveclawConfig>): Promise<Hive
     bootstrap = await readBootstrapContract(cfg.rpcUrl, cfg.bootstrapContract);
   }
 
+  let hiveRegistry: HiveclawPingResult["hiveRegistry"];
+  if (cfg.hiveRegistryContract) {
+    try {
+      const snap = await readHiveRegistrySnapshot(cfg.rpcUrl, cfg.hiveRegistryContract);
+      hiveRegistry = {
+        ok: true,
+        address: cfg.hiveRegistryContract,
+        version: snap.version,
+        nextHiveId: snap.nextHiveId,
+      };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      hiveRegistry = { ok: false, address: cfg.hiveRegistryContract, error: msg };
+    }
+  }
+
   const storage = await runStorageSmoke(cfg);
 
   return {
@@ -32,6 +50,7 @@ export async function runPing(overrides?: Partial<HiveclawConfig>): Promise<Hive
     blockNumber: blockNumber.toString(),
     chainIdNote,
     bootstrap,
+    hiveRegistry,
     storage,
   };
 }
@@ -50,6 +69,17 @@ export function pingSummary(result: HiveclawPingResult): string {
     }
   } else {
     lines.push("bootstrap: (HIVECLAW_BOOTSTRAP_CONTRACT not set)");
+  }
+  if (result.hiveRegistry) {
+    if (result.hiveRegistry.ok) {
+      lines.push(
+        `hiveRegistry ${result.hiveRegistry.address}: version=${result.hiveRegistry.version} nextHiveId=${result.hiveRegistry.nextHiveId}`,
+      );
+    } else {
+      lines.push(`hiveRegistry ${result.hiveRegistry.address}: ERROR ${result.hiveRegistry.error}`);
+    }
+  } else {
+    lines.push("hiveRegistry: (HIVECLAW_HIVE_REGISTRY_CONTRACT not set)");
   }
   if (result.storage.ok) {
     lines.push(

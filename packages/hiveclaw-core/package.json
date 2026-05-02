@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./hive-registry": {
+      "types": "./dist/hive-registry.d.ts",
+      "import": "./dist/hive-registry.js"
     }
   },
   "scripts": {

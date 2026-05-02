@@ -7,6 +7,7 @@ type HiveclawPluginConfig = {
   rpcUrl?: string;
   indexerUrl?: string;
   bootstrapContract?: string;
+  hiveRegistryContract?: string;
   storagePrivateKey?: string;
   expectedChainId?: number;
 };
@@ -18,6 +19,7 @@ function pluginOverrides(api: OpenClawPluginApi): Partial<HiveclawConfig> {
     rpcUrl: raw.rpcUrl,
     indexerUrl: raw.indexerUrl,
     bootstrapContract: raw.bootstrapContract,
+    hiveRegistryContract: raw.hiveRegistryContract,
     storagePrivateKey: raw.storagePrivateKey,
     expectedChainId: raw.expectedChainId,
   };
@@ -26,7 +28,7 @@ function pluginOverrides(api: OpenClawPluginApi): Partial<HiveclawConfig> {
 export default definePluginEntry({
   id: "hiveclaw",
   name: "HiveClaw",
-  description: "Permissioned agent memory on 0G (Phase 1 diagnostic).",
+  description: "Hive memory on 0G: chain + storage checks; configure HiveRegistry for Phase 2+.",
   register(api) {
     api.registerTool({
       name: "hiveclaw_ping",

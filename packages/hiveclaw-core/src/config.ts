@@ -2,6 +2,10 @@ export type HiveclawConfig = {
   rpcUrl: string;
   indexerUrl: string;
   bootstrapContract: string | undefined;
+  /** Phase 2: `HiveRegistry` (on-chain hives, members, memory commits). */
+  hiveRegistryContract: string | undefined;
+  /** Local signer for CLI chain transactions (create hive, members, etc.). Never commit. */
+  chainPrivateKey: string | undefined;
   storagePrivateKey: string | undefined;
   expectedChainId: number | undefined;
 };
@@ -36,6 +40,12 @@ export function loadHiveclawConfig(overrides?: Partial<HiveclawConfig>): Hivecla
       overrides?.bootstrapContract ??
       readEnv("HIVECLAW_BOOTSTRAP_CONTRACT") ??
       readEnv("NEXT_PUBLIC_HIVECLAW_BOOTSTRAP_CONTRACT"),
+    hiveRegistryContract:
+      overrides?.hiveRegistryContract ??
+      readEnv("HIVECLAW_HIVE_REGISTRY_CONTRACT") ??
+      readEnv("NEXT_PUBLIC_HIVECLAW_HIVE_REGISTRY_CONTRACT"),
+    chainPrivateKey:
+      overrides?.chainPrivateKey ?? readEnv("HIVECLAW_CHAIN_PRIVATE_KEY") ?? readEnv("PRIVATE_KEY"),
     storagePrivateKey: overrides?.storagePrivateKey ?? readEnv("HIVECLAW_STORAGE_PRIVATE_KEY"),
     expectedChainId,
   };

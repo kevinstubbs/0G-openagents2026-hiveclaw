@@ -5,6 +5,11 @@
   "scripts": {
     "build": "pnpm -r run build",
     "test": "forge test --root contracts",
-    "doctor": "node apps/hiveclaw-cli/dist/cli.js doctor"
+    "doctor": "node apps/hiveclaw-cli/dist/cli.js doctor",
+    "healthcheck": "node apps/hiveclaw-cli/dist/cli.js doctor",
+    "deploy:testnet": "dotenv -e .env -- bash contracts/deploy-testnet.sh"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
   }
 }

@@ -8,6 +8,7 @@
     "start": "next start --port 3040"
   },
   "dependencies": {
+    "ethers": "^6.16.0",
     "hiveclaw-core": "workspace:*",
     "next": "^15.3.2",
     "react": "^19.1.0",
