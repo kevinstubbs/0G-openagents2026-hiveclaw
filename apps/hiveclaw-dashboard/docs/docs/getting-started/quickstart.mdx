@@ -1,0 +1,43 @@
+---
+sidebar_position: 1
+title: Quickstart
+---
+
+# Quickstart
+
+HiveClaw lives in a **pnpm monorepo**. From the repository root:
+
+```bash
+cp .env.example .env
+pnpm install
+pnpm run build
+pnpm run doctor
+```
+
+- **`pnpm run doctor`** runs this project’s health check (RPC, contracts, storage smoke when configured).  
+- **`pnpm doctor`** is [pnpm’s own command](https://pnpm.io/cli/doctor) — it is not the HiveClaw check.
+
+## Prerequisites
+
+- **Node.js** 20+ (see `engines` in workspace packages).
+- A populated **`.env`** — see [Configuration](../configuration/environment). For read-only checks you need RPC URLs and contract addresses; for uploads and chain txs you need funded keys where documented.
+
+## Deploying contracts (optional)
+
+To deploy your own **HiveClawBootstrap** and **HiveRegistry** on 0G Galileo testnet, use a funded deployer key in `.env` and run:
+
+```bash
+pnpm deploy:testnet
+```
+
+See [Contracts](../contracts/testnet-deploy) and the **README** at the monorepo root for the reference deployment table.
+
+## Phase 1 exit checks (from repo README)
+
+1. `cd contracts && forge test`
+2. Deploy to testnet and paste printed addresses into `.env`
+3. `pnpm run doctor` exits 0 (chain + storage skipped or OK)
+4. `/status` matches the CLI when using the same env
+5. OpenClaw: plugin loads; `hiveclaw_ping` runs in an agent session
+
+Next: [Environment variables](../configuration/environment).

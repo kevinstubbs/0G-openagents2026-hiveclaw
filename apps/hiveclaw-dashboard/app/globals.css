@@ -1,16 +1,86 @@
-:root {
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
-  color: #0f172a;
-  background: #f8fafc;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  padding: 1.5rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.5;
+  color: #0f0f14;
+  background: #ffffff;
 }
 
-pre {
+::selection {
+  background: #a259ff33;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #fafafa;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e5ea;
+  border-radius: 3px;
+}
+
+/* Hivemind prototype breakpoints — scoped to marketing landing */
+@media (max-width: 768px) {
+  .hc-landing .hero-inner {
+    flex-direction: column !important;
+    text-align: center;
+  }
+  .hc-landing .hero-text {
+    align-items: center !important;
+  }
+  .hc-landing .hero-illu {
+    display: none !important;
+  }
+  .hc-landing .three-col {
+    grid-template-columns: 1fr !important;
+  }
+  .hc-landing .two-col {
+    grid-template-columns: 1fr !important;
+  }
+  .hc-landing .six-col {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .hc-landing .mem-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hc-landing .demo-flow {
+    flex-direction: column !important;
+    align-items: center;
+  }
+  .hc-landing .arch-diagram {
+    overflow-x: auto;
+  }
+  .hc-landing .api-cols {
+    flex-direction: column !important;
+  }
+  .hc-landing .solution-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hc-landing .demo-agents {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* App utility pages (non-landing): offset fixed nav (64px) */
+main.app-shell {
+  padding: 1.5rem;
+  padding-top: calc(4rem + 1.5rem);
+  min-height: calc(100vh - 4rem);
+}
+
+main.app-shell pre {
   background: #1e293b;
   color: #e2e8f0;
   padding: 1rem;
@@ -19,7 +89,7 @@ pre {
   font-size: 0.875rem;
 }
 
-h1 {
+main.app-shell h1 {
   font-size: 1.25rem;
   margin-top: 0;
 }

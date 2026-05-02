@@ -11,6 +11,8 @@ pnpm run build
 pnpm run doctor
 ```
 
+`pnpm run build` rebuilds the **`/docs`** static site (Docusaurus → `apps/hiveclaw-dashboard/public/docs`) before building every workspace package (see root `docs:build` script).
+
 Use `pnpm run doctor` (or `pnpm healthcheck`): bare **`pnpm doctor`** is [pnpm’s own diagnostic](https://pnpm.io/cli/doctor), not this repo’s HiveClaw check, so it usually prints nothing useful here.
 
 ## Deploying contracts (testnet)
@@ -39,7 +41,13 @@ NEXT_PUBLIC_HIVECLAW_BOOTSTRAP_CONTRACT=0x4e6A80653B419777d281622249bd49Dc351310
 NEXT_PUBLIC_HIVECLAW_HIVE_REGISTRY_CONTRACT=0x496A34251Da57a3C1907325884323147D549626A
 ```
 
-- **Dashboard:** `pnpm --filter hiveclaw-dashboard dev` → [http://localhost:3040/status](http://localhost:3040/status) (same env as CLI).
+- **Dashboard:** `pnpm --filter hiveclaw-dashboard dev` → marketing site at `/`, app routes like [http://localhost:3040/status](http://localhost:3040/status), docs at [http://localhost:3040/docs/](http://localhost:3040/docs/) (same env as CLI).
+
+  **Documentation (Docusaurus)** lives under [`apps/hiveclaw-dashboard/docs`](apps/hiveclaw-dashboard/docs) and is built into `apps/hiveclaw-dashboard/public/docs` for `/docs`. Set **`DOCUSAURUS_URL`** at build time for canonical URLs (see [`.env.example`](.env.example)); it defaults to `http://localhost:3040` when unset.
+
+  - **Preview docs + Next together:** run `pnpm --filter hiveclaw-dashboard docs:build`, then `pnpm --filter hiveclaw-dashboard dev`. Edit MDX, then run `docs:build` again to refresh `/docs` (static until rebuilt).
+  - **Docs-only live reload:** `pnpm --filter hiveclaw-dashboard docs:dev` runs Docusaurus on port **3041** (fast iteration; use the full-site flow above when you need `/status` and `/hive` alongside `/docs`).
+  - **E2E:** `pnpm --filter hiveclaw-dashboard exec playwright install chromium` once, then `pnpm --filter hiveclaw-dashboard test:e2e` (starts production server via Playwright after `pnpm run build` inside the dashboard package, unless something is already listening on port 3040).
 - **OpenClaw:** `pnpm --filter openclaw-plugin-hiveclaw run build`, then `openclaw plugins install ./packages/openclaw-plugin-hiveclaw`. Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as needed and allow tool `hiveclaw_ping` / plugin id per OpenClaw docs.
 
 ## Phase 1 exit checks

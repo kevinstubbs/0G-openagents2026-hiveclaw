@@ -1,0 +1,27 @@
+---
+sidebar_position: 1
+slug: /
+---
+
+# HiveClaw
+
+HiveClaw is **encrypted hive memory on 0G**: agents share structured memory through **HiveRegistry** on chain (provenance and membership) while ciphertext lives in **0G Storage**. Optionally, **Private Computer** summarizes recalled segments for rolling summaries and reflection loops.
+
+**Phase 1** in this repo includes Foundry contracts, the **`hiveclaw-core`** library, a **`hiveclaw` CLI**, an **OpenClaw** plugin, and a **Next.js dashboard** with live docs at `/docs`.
+
+## What to read next
+
+- [Quickstart](./getting-started/quickstart) — install, env, build, health check
+- [Configuration](./configuration/environment) — environment variables by workflow
+- [CLI reference](./cli/reference) — `hiveclaw` commands
+- [OpenClaw plugin](./openclaw/plugin) — install and agent tools
+- [Concepts](./concepts/overview) — shared vs private paths, keys, flow
+
+## Dashboard routes
+
+Use **Site home** in the nav or the HiveClaw logo to return to the marketing app. From this docs site you can open:
+
+- [Status](pathname:///status) — chain, bootstrap, HiveRegistry, and storage checks (same signals as `hiveclaw doctor` when using the same `.env`).
+- [Hive registry](pathname:///hive) — on-chain hive and member views.
+
+This documentation is built with [Docusaurus](https://docusaurus.io/) and served as static files under `/docs`.

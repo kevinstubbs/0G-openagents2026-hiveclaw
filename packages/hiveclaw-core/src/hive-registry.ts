@@ -227,3 +227,19 @@ export async function commitMemory(
     metadataURI,
   ) as Promise<ContractTransactionResponse>;
 }
+
+export async function fetchMemoryHistory(
+  rpcUrl: string,
+  contractAddress: string,
+  hiveId: bigint,
+  memoryKey: string,
+): Promise<MemoryCommitView[]> {
+  const c = getHiveRegistryReadonly(rpcUrl, contractAddress);
+  const len = Number(await c.memoryHistoryLength(hiveId, memoryKey));
+  const out: MemoryCommitView[] = [];
+  for (let i = 0; i < len; i += 1) {
+    const raw = await c.memoryHistoryAt(hiveId, memoryKey, i);
+    out.push(formatCommit(raw as Record<string, unknown>));
+  }
+  return out;
+}

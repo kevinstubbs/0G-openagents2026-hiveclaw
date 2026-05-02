@@ -1,0 +1,37 @@
+---
+sidebar_position: 1
+title: Testnet deploy
+---
+
+# Testnet deploy
+
+HiveClaw contracts are developed with **Foundry** under `contracts/`. Deploying to **0G Galileo** testnet uses your funded deployer key from `.env` via **dotenv-cli** so the key is not passed on the shell command line.
+
+## One-command deploy
+
+From the repo root (after `cp .env.example .env` and setting a deployer key):
+
+```bash
+pnpm deploy:testnet
+```
+
+This loads `.env`, runs the orchestrated script `contracts/script/DeployHiveClaw.s.sol`, and prints contract addresses to paste back into `.env`.
+
+Equivalent:
+
+```bash
+dotenv -e .env -- bash contracts/deploy-testnet.sh
+```
+
+For ad-hoc `forge script` invocations, prefix with `dotenv -e .env --` so secrets stay off the argv.
+
+## Reference deployment
+
+The root **README** documents a hackathon deployment on Galileo (chain id **16602**) with canonical addresses for **HiveClawBootstrap** and **HiveRegistry**. Use those in `.env` if you connect to that deployment instead of deploying yourself.
+
+## Verification
+
+- `cd contracts && forge test`
+- After deploy, run `pnpm run doctor` and confirm bootstrap + HiveRegistry checks pass.
+
+See also [Configuration](../configuration/environment) for env variable names.

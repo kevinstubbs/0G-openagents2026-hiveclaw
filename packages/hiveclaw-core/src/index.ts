@@ -10,6 +10,7 @@ export {
   commitMemory,
   createHive,
   createHiveAndWait,
+  fetchMemoryHistory,
   getHiveRegistryDetail,
   getHiveRegistryReadonly,
   getHiveRegistryWithSigner,
@@ -24,3 +25,16 @@ export {
   type HiveRegistryReadSnapshot,
   type MemoryCommitView,
 } from "./hive-registry.js";
+export { parseHiveKeyHex, encryptHivePayload, decryptHivePayload } from "./crypto.js";
+export { hashPlaintextUtf8, hashPlaintextBytes } from "./content-hash.js";
+export { sharedLogicalPath, privateLogicalPath, normalizeAgentAddress } from "./memory-paths.js";
+export { uploadBlob, downloadBlob, rootHashToStoragePointer } from "./storage-blob.js";
+export { putHiveMemory, getHiveMemory, type PutHiveMemoryInput, type GetHiveMemoryInput } from "./hive-memory.js";
+export { resolveHiveKeyHex } from "./hive-keys.js";
+export {
+  summarizeMemories,
+  type SummarizeInput,
+  type SummarizeResult,
+  type PcAttestationMetadata,
+} from "./summarize.js";
+export { reflectAndCommitShared, type ReflectAndCommitInput, type ReflectAndCommitOutput } from "./reflect.js";

@@ -4,8 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3040",
+    "docs:dev": "pnpm --dir docs start",
+    "docs:build": "pnpm --dir docs build",
     "build": "next build",
-    "start": "next start --port 3040"
+    "start": "next start --port 3040",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "ethers": "^6.16.0",
@@ -15,6 +19,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",

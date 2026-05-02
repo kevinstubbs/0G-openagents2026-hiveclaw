@@ -1,0 +1,108 @@
+---
+sidebar_position: 1
+title: CLI reference
+---
+
+# CLI reference
+
+The **`hiveclaw`** binary lives under `apps/hiveclaw-cli` and consumes **`hiveclaw-core`**. Commands read configuration from the same **`.env`** as the dashboard and plugin unless you extend the loader later.
+
+Global usage:
+
+```bash
+hiveclaw <command> [options]
+```
+
+If you run `hiveclaw` with no arguments, it defaults to **`doctor`**.
+
+## `doctor` and `ping`
+
+| Command | Description |
+|---------|-------------|
+| `hiveclaw doctor` | Prints chain id, block, bootstrap contract read, HiveRegistry read, and storage smoke (skipped if storage not configured). Exits non-zero if checks fail. |
+| `hiveclaw ping` | Alias for `doctor`. |
+
+**Requires:** RPC + contract addresses in env. Storage portion may skip without a storage key.
+
+## `hive`
+
+Hive registry operations (member lists and hive metadata).
+
+| Command | Description |
+|---------|-------------|
+| `hiveclaw hive create <name>` | Creates a hive; caller becomes creator and first member. |
+| `hiveclaw hive show <hiveId>` | Prints hive name, creator, and member addresses. |
+| `hiveclaw hive list [--wallet 0x…]` | Lists hive ids for a wallet (read-only). With `--wallet` omitted, uses the address derived from `HIVECLAW_CHAIN_PRIVATE_KEY` if set. |
+| `hiveclaw hive my` | Lists hive ids for the configured chain private key. |
+
+**Requires:** `HIVECLAW_HIVE_REGISTRY_CONTRACT`. Writes require `HIVECLAW_CHAIN_PRIVATE_KEY` (or `PRIVATE_KEY` per config).
+
+Examples:
+
+```bash
+hiveclaw hive create my-swarm
+hiveclaw hive show 1
+hiveclaw hive list --wallet 0xYourAddress
+```
+
+## `member`
+
+Creator-gated membership changes on **HiveRegistry**.
+
+| Command | Description |
+|---------|-------------|
+| `hiveclaw member add <hiveId> <address>` | Adds a member. |
+| `hiveclaw member remove <hiveId> <address>` | Removes a member (cannot remove creator). |
+| `hiveclaw member check <hiveId> <address>` | Prints whether the address is a member. |
+
+**Requires:** registry address + chain private key for `add`/`remove`.
+
+## `memory`
+
+On-chain memory commits and encrypted blob round-trips.
+
+| Command | Description |
+|---------|-------------|
+| `memory commit <hiveId>` | `commitMemory` smoke: registers storage pointer + content hash for a logical key (must be a member). Options: `--key`, `--pointer`, `--hash`, `--key-version`, `--metadata`. |
+| `memory latest <hiveId>` | Reads `latestMemory` for a logical key (`--key`, default `shared/smoke`). |
+| `memory put <hiveId>` | Encrypts plaintext, uploads to 0G, commits on-chain (`--scope shared|private`, `--segment`, `--message` or `--file`). |
+| `memory get <hiveId>` | Downloads latest blob, decrypts, verifies hash (`--scope`, `--segment`). |
+| `memory history <hiveId>` | Lists on-chain commits for a logical key (`--key` full path e.g. `shared/foo` or `private/0x…/bar`). |
+
+**Requires:** For `put`/`get`: registry, chain key, **storage** key, **hive** symmetric key (`HIVECLAW_HIVE_KEY_HEX` or `HIVECLAW_HIVE_KEYS_JSON` for that hive). For `commit`/`latest`/`history`: registry + member signer as appropriate.
+
+Examples:
+
+```bash
+hiveclaw memory put 1 --scope shared --segment findings/round1 --message "hello hive"
+hiveclaw memory get 1 --scope shared --segment findings/round1
+```
+
+## `summarize`
+
+Recalls one or more segments (shared and/or private), sends combined text to **Private Computer**, prints the summary. Optional commit of summary back to shared storage.
+
+```bash
+hiveclaw summarize <hiveId> \
+  --shared segment/a --shared segment/b \
+  --private notes/x \
+  [--commit] [--summary-segment summary/rolling] [--json]
+```
+
+**Requires:** `HIVECLAW_PRIVATE_COMPUTER_URL`, hive key, chain + storage keys, segments that exist.
+
+## `reflect`
+
+Runs the reflection loop: recall → summarize → **commit** rolling summary to `shared/<summary-segment>`.
+
+```bash
+hiveclaw reflect <hiveId> \
+  --shared a --private b \
+  [--summary-segment summary/rolling] [--json]
+```
+
+**Requires:** same as summarize plus segments; uses `reflectAndCommitShared` from core.
+
+---
+
+For deeper behavior (paths, encryption), see [Concepts](../concepts/overview).

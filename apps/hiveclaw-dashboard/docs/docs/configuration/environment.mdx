@@ -1,0 +1,74 @@
+---
+sidebar_position: 1
+title: Environment variables
+---
+
+# Environment variables
+
+Configure HiveClaw via **`.env`** at the repo root (copy from `.env.example`). **Never commit** real private keys or hive symmetric keys.
+
+The OpenClaw plugin can override many of these via its config object; names below match **`hiveclaw-core`** / CLI unless noted.
+
+## Chain and indexer
+
+| Variable | Purpose |
+|----------|---------|
+| `HIVECLAW_RPC_URL` | JSON-RPC URL (default Galileo testnet in `.env.example`). |
+| `HIVECLAW_INDEXER_URL` | 0G Storage indexer base URL. |
+| `NEXT_PUBLIC_HIVECLAW_RPC_URL` | Optional; Next.js client/server fallback names. |
+| `NEXT_PUBLIC_HIVECLAW_INDEXER_URL` | Optional; Next.js fallback. |
+
+## Contracts
+
+| Variable | Purpose |
+|----------|---------|
+| `HIVECLAW_BOOTSTRAP_CONTRACT` | Deployed **HiveClawBootstrap** address. |
+| `HIVECLAW_HIVE_REGISTRY_CONTRACT` | Deployed **HiveRegistry** address. |
+| `NEXT_PUBLIC_HIVECLAW_BOOTSTRAP_CONTRACT` | Same for Next public bundle. |
+| `NEXT_PUBLIC_HIVECLAW_HIVE_REGISTRY_CONTRACT` | Same for Next public bundle. |
+
+## Keys and identity
+
+| Variable | Purpose |
+|----------|---------|
+| `PRIVATE_KEY` | Used by Foundry deploy scripts (optional alias pattern in README). |
+| `HIVECLAW_CHAIN_PRIVATE_KEY` | CLI/plugin chain signer (`PRIVATE_KEY` fallback). **Required** for registry txs and encrypted memory commits that touch chain. |
+| `HIVECLAW_STORAGE_PRIVATE_KEY` | Funded key for 0G Storage upload/download smoke and blob paths. **Required** for `put`/`get`-style flows. |
+| `HIVECLAW_EXPECTED_CHAIN_ID` | Optional sanity check (e.g. `16602` for Galileo testnet). |
+
+## Hive encryption (symmetric)
+
+Per-hive AES-style keys protect blobs **before** upload:
+
+| Variable | Purpose |
+|----------|---------|
+| `HIVECLAW_HIVE_KEY_HEX` | Single 32-byte hex key (optional default hive). |
+| `HIVECLAW_HIVE_KEYS_JSON` | JSON map of hive id → hex key, e.g. `'{"1":"0x..."}'`. |
+
+## Private Computer (summarization)
+
+| Variable | Purpose |
+|----------|---------|
+| `HIVECLAW_PRIVATE_COMPUTER_URL` | OpenAI-compatible API base URL (e.g. 0G Private Computer). |
+| `HIVECLAW_PRIVATE_COMPUTER_API_KEY` | Optional API key. |
+
+Required for CLI `summarize` / `reflect` and plugin tools that call summarization.
+
+## Documentation build
+
+| Variable | Purpose |
+|----------|---------|
+| `DOCUSAURUS_URL` | Canonical site URL at **docs build time** for sitemap/SEO (defaults to `http://localhost:3040`). |
+
+## Optional branding
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_GITHUB_URL` | Repo URL for dashboard links. |
+
+## By workflow
+
+- **Read-only / doctor:** RPC + contract addresses; optional expected chain id. Storage may show skipped without `HIVECLAW_STORAGE_PRIVATE_KEY`.
+- **Hive registry writes:** `HIVECLAW_CHAIN_PRIVATE_KEY` (or `PRIVATE_KEY`), registry address.
+- **Encrypted blob upload/download:** chain key, storage key, hive key(s), indexer URL.
+- **Summarize / reflect:** Private Computer URL (and key if required), plus keys above as for memory ops.

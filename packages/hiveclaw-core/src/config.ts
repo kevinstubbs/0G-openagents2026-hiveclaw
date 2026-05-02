@@ -8,12 +8,30 @@ export type HiveclawConfig = {
   chainPrivateKey: string | undefined;
   storagePrivateKey: string | undefined;
   expectedChainId: number | undefined;
+  /** Optional default symmetric hive key (32-byte hex) when per-hive map misses. */
+  defaultHiveKeyHex: string | undefined;
+  /** hive id string → 32-byte hex key for encryption. */
+  hiveKeysById: Record<string, string> | undefined;
+  /** Private Computer OpenAI-compatible base URL. */
+  privateComputerBaseUrl: string | undefined;
+  /** API key for Private Computer (Bearer / standard OpenAI auth). */
+  privateComputerApiKey: string | undefined;
 };
 
 function readEnv(key: string): string | undefined {
   const v = process.env[key];
   if (v === undefined || v === "") return undefined;
   return v;
+}
+
+function parseHiveKeysJson(raw: string | undefined): Record<string, string> | undefined {
+  if (!raw || raw.trim() === "") return undefined;
+  try {
+    const o = JSON.parse(raw) as Record<string, string>;
+    return typeof o === "object" && o !== null ? o : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** Merge process.env with optional overrides (e.g. OpenClaw plugin config). */
@@ -48,5 +66,20 @@ export function loadHiveclawConfig(overrides?: Partial<HiveclawConfig>): Hivecla
       overrides?.chainPrivateKey ?? readEnv("HIVECLAW_CHAIN_PRIVATE_KEY") ?? readEnv("PRIVATE_KEY"),
     storagePrivateKey: overrides?.storagePrivateKey ?? readEnv("HIVECLAW_STORAGE_PRIVATE_KEY"),
     expectedChainId,
+    defaultHiveKeyHex:
+      overrides?.defaultHiveKeyHex ??
+      readEnv("HIVECLAW_HIVE_KEY_HEX") ??
+      readEnv("HIVECLAW_DEFAULT_HIVE_KEY_HEX"),
+    hiveKeysById:
+      overrides?.hiveKeysById ??
+      parseHiveKeysJson(readEnv("HIVECLAW_HIVE_KEYS_JSON")),
+    privateComputerBaseUrl:
+      overrides?.privateComputerBaseUrl ??
+      readEnv("HIVECLAW_PRIVATE_COMPUTER_URL") ??
+      readEnv("PRIVATE_COMPUTER_URL"),
+    privateComputerApiKey:
+      overrides?.privateComputerApiKey ??
+      readEnv("HIVECLAW_PRIVATE_COMPUTER_API_KEY") ??
+      readEnv("PRIVATE_COMPUTER_API_KEY"),
   };
 }

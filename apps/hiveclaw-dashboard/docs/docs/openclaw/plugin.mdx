@@ -1,0 +1,57 @@
+---
+sidebar_position: 1
+title: Plugin
+---
+
+# OpenClaw plugin
+
+Package: **`openclaw-plugin-hiveclaw`** (`packages/openclaw-plugin-hiveclaw`). Plugin id: **`hiveclaw`**.
+
+## Install
+
+From the monorepo root (after building the plugin):
+
+```bash
+pnpm --filter openclaw-plugin-hiveclaw run build
+openclaw plugins install ./packages/openclaw-plugin-hiveclaw
+```
+
+Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as needed and allow tool **`hiveclaw_ping`** / plugin id per OpenClaw’s docs.
+
+## Configuration (`HiveclawPluginConfig`)
+
+Plugin config fields map onto **`loadHiveclawConfig`** overrides:
+
+| Field | Maps to |
+|-------|---------|
+| `rpcUrl` | RPC endpoint |
+| `indexerUrl` | 0G indexer |
+| `bootstrapContract` | Bootstrap address |
+| `hiveRegistryContract` | HiveRegistry address |
+| `storagePrivateKey` | Storage signer |
+| `chainPrivateKey` | Chain signer |
+| `expectedChainId` | Expected chain |
+| `defaultHiveKeyHex` | Default hive symmetric key (32-byte hex) |
+| `hiveKeysJson` | JSON string: hive id → hex key |
+| `defaultHiveId` | Default hive for tools that accept optional `hiveId` |
+| `privateComputerBaseUrl` | Private Computer API base |
+| `privateComputerApiKey` | Optional API key |
+
+Env vars such as `HIVECLAW_*` still apply when plugin fields are omitted.
+
+## Tools
+
+| Tool | Description |
+|------|-------------|
+| `hiveclaw_ping` | Chain + HiveRegistry + 0G storage smoke; use before memory ops. |
+| `hiveclaw_list_my_hives` | Lists hive ids from `memberHives` for the plugin chain wallet. |
+| `remember_shared` | Encrypts content, uploads to 0G, `commitMemory` under `shared/<segment>`. |
+| `recall_shared` | Decrypts latest shared segment after registry lookup. |
+| `remember_private` | Same as shared but under `private/<your-address>/<segment>`. |
+| `recall_private` | Decrypts latest private lane segment for your wallet. |
+| `summarize_memory` | Recalls segments, calls Private Computer summarization; optional commit to shared. |
+| `hiveclaw_reflect` | Reflection loop: recall → summarize → encrypt/upload/commit to `shared/<summarySegment>`. |
+
+Memory mutating tools require **chain** key, **storage** key, **hive** key resolution for the hive (via config or env), and registry contract — mirroring CLI requirements.
+
+See [Configuration](../configuration/environment) and [CLI reference](../cli/reference) for the same semantics with different surfaces.

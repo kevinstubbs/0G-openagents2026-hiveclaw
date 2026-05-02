@@ -1,0 +1,39 @@
+---
+sidebar_position: 1
+title: Overview
+---
+
+# Dashboard
+
+The **hiveclaw-dashboard** Next.js app (`apps/hiveclaw-dashboard`) serves the marketing site, operational routes, and this documentation.
+
+## Routes
+
+| Path | Purpose |
+|------|---------|
+| `/` | Marketing / landing (site shell). |
+| `/status` | Chain, bootstrap, HiveRegistry, and storage status — align with `pnpm run doctor` / `hiveclaw doctor` when `.env` matches. |
+| `/hive` | Hive registry exploration (on-chain hive and member views). |
+| `/docs` | This Docusaurus documentation (static export under `public/docs`). |
+
+## Environment
+
+Use the **same `.env`** at the monorepo root as the CLI so dashboard views stay consistent with command-line diagnostics. Next may read `NEXT_PUBLIC_*` variants where implemented; see [Configuration](../configuration/environment).
+
+## Updating `/docs`
+
+Documentation sources live in `apps/hiveclaw-dashboard/docs/`. After editing MDX:
+
+```bash
+pnpm --filter hiveclaw-dashboard docs:build
+```
+
+Then run the dashboard (`pnpm --filter hiveclaw-dashboard dev`) and reload `/docs`. For fast iteration on docs alone:
+
+```bash
+pnpm --filter hiveclaw-dashboard docs:dev
+```
+
+That serves Docusaurus on port **3041** (see dashboard `package.json` scripts).
+
+From the **repository root**, **`pnpm run build`** runs **`docs:build`** first (see root `package.json`), then builds each package; the dashboard package’s **`build`** script is **`next build`** only, so a full monorepo build always refreshes `public/docs` before Next runs.

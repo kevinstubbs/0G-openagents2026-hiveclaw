@@ -3,16 +3,22 @@ import {
   addressFromPrivateKey,
   commitMemory,
   createHiveAndWait,
+  fetchMemoryHistory,
+  getHiveMemory,
   getHiveRegistryDetail,
   getLatestMemory,
   getMemberHives,
   isHiveMember,
   loadHiveclawConfig,
+  putHiveMemory,
+  reflectAndCommitShared,
+  resolveHiveKeyHex,
   type HiveclawConfig,
   memoryKeyFromString,
   pingSummary,
   removeRegistryMember,
   runPing,
+  summarizeMemories,
   waitTxHash,
   ZeroHash,
 } from "hiveclaw-core";
@@ -302,8 +308,300 @@ try {
               console.log(JSON.stringify(m, null, 2));
             },
           )
-          .demandCommand(1, "Specify memory subcommand (commit | latest)"),
+          .command(
+            "put <hiveId>",
+            "Encrypt + upload + commitMemory (shared or private lane)",
+            (y2) =>
+              y2
+                .option("scope", {
+                  choices: ["shared", "private"] as const,
+                  default: "shared",
+                  describe: "shared/* vs private/<your-address>/*",
+                })
+                .option("segment", {
+                  type: "string",
+                  demandOption: true,
+                  describe: 'Path segment e.g. "findings/round1" or "notes"',
+                })
+                .option("message", {
+                  type: "string",
+                  describe: "UTF-8 plaintext body",
+                })
+                .option("file", {
+                  type: "string",
+                  describe: "Read plaintext from file instead of --message",
+                }),
+            async (argv) => {
+              const cfg = loadHiveclawConfig();
+              requireRegistry(cfg);
+              requireSigner(cfg);
+              let body = argv.message as string | undefined;
+              if (argv.file) {
+                const { readFile } = await import("node:fs/promises");
+                body = await readFile(String(argv.file), "utf8");
+              }
+              if (!body) throw new Error("Provide --message or --file");
+              const hiveId = BigInt(String(argv.hiveId));
+              const pk = requireSigner(cfg);
+              const agent = addressFromPrivateKey(pk);
+              const hiveKey = resolveHiveKeyHex(hiveId, cfg);
+              if (!hiveKey) {
+                throw new Error(
+                  "Set HIVECLAW_HIVE_KEY_HEX or HIVECLAW_HIVE_KEYS_JSON for this hive id",
+                );
+              }
+              const r = await putHiveMemory({
+                cfg,
+                hiveId,
+                plaintext: body,
+                hiveKeyHex: hiveKey,
+                segment: String(argv.segment),
+                scope: argv.scope as "shared" | "private",
+                agentAddress: agent,
+              });
+              console.log(JSON.stringify(r, null, 2));
+            },
+          )
+          .command(
+            "get <hiveId>",
+            "Download latest ciphertext blob, decrypt, verify hash",
+            (y2) =>
+              y2
+                .option("scope", {
+                  choices: ["shared", "private"] as const,
+                  demandOption: true,
+                })
+                .option("segment", {
+                  type: "string",
+                  demandOption: true,
+                }),
+            async (argv) => {
+              const cfg = loadHiveclawConfig();
+              requireRegistry(cfg);
+              requireSigner(cfg);
+              const hiveId = BigInt(String(argv.hiveId));
+              const pk = requireSigner(cfg);
+              const agent = addressFromPrivateKey(pk);
+              const hiveKey = resolveHiveKeyHex(hiveId, cfg);
+              if (!hiveKey) throw new Error("Set hive key env for this hive id");
+              const r = await getHiveMemory({
+                cfg,
+                hiveId,
+                hiveKeyHex: hiveKey,
+                segment: String(argv.segment),
+                scope: argv.scope as "shared" | "private",
+                agentAddress: agent,
+              });
+              console.log(r.plaintext);
+            },
+          )
+          .command(
+            "history <hiveId>",
+            "List on-chain commits for a logical key (metadata)",
+            (y2) =>
+              y2.option("key", {
+                type: "string",
+                demandOption: true,
+                describe: "Full logical path e.g. shared/foo or private/0x…/bar",
+              }),
+            async (argv) => {
+              const cfg = loadHiveclawConfig();
+              const reg = requireRegistry(cfg);
+              const mk = memoryKeyFromString(String(argv.key));
+              const hist = await fetchMemoryHistory(cfg.rpcUrl, reg, BigInt(String(argv.hiveId)), mk);
+              console.log(JSON.stringify(hist, null, 2));
+            },
+          )
+          .demandCommand(1, "Specify memory subcommand (commit | latest | put | get | history)"),
       () => {},
+    )
+    .command(
+      "summarize <hiveId>",
+      "Recall segments + Private Computer summarization (needs PC URL + API key env)",
+      (y) =>
+        y
+          .option("shared", {
+            type: "array",
+            default: [],
+            describe: "Repeatable segment paths under shared/",
+          })
+          .option("private", {
+            type: "array",
+            default: [],
+            describe: "Repeatable segment paths under private/<you>/",
+          })
+          .option("commit", {
+            type: "boolean",
+            default: false,
+            describe: "After summarize, remember_shared to shared/<summary-segment>",
+          })
+          .option("summary-segment", {
+            type: "string",
+            default: "summary/rolling",
+            describe: "When --commit: path under shared/",
+          })
+          .option("attestation-metadata", {
+            type: "boolean",
+            default: false,
+            describe: "When --commit: store compact PC attestation JSON in metadataURI",
+          })
+          .option("json", {
+            type: "boolean",
+            default: false,
+            describe: "Print JSON (summary, attestation, optional commit) instead of summary text only",
+          }),
+      async (argv) => {
+        const cfg = loadHiveclawConfig();
+        requireRegistry(cfg);
+        requireSigner(cfg);
+        const hiveId = BigInt(String(argv.hiveId));
+        const pk = requireSigner(cfg);
+        const agent = addressFromPrivateKey(pk);
+        const hiveKey = resolveHiveKeyHex(hiveId, cfg);
+        if (!hiveKey) throw new Error("Set hive key env for this hive id");
+        const base = cfg.privateComputerBaseUrl;
+        if (!base) throw new Error("Set HIVECLAW_PRIVATE_COMPUTER_URL");
+        const blocks: { label: string; text: string }[] = [];
+        const shared = argv.shared as string[];
+        const priv = argv.private as string[];
+        for (const seg of shared) {
+          const r = await getHiveMemory({
+            cfg,
+            hiveId,
+            hiveKeyHex: hiveKey,
+            segment: seg,
+            scope: "shared",
+            agentAddress: agent,
+          });
+          blocks.push({ label: `shared:${r.logicalPath}`, text: r.plaintext });
+        }
+        for (const seg of priv) {
+          const r = await getHiveMemory({
+            cfg,
+            hiveId,
+            hiveKeyHex: hiveKey,
+            segment: seg,
+            scope: "private",
+            agentAddress: agent,
+          });
+          blocks.push({ label: `private:${r.logicalPath}`, text: r.plaintext });
+        }
+        if (blocks.length === 0) {
+          throw new Error("Pass --shared segment and/or --private segment (repeatable)");
+        }
+        const result = await summarizeMemories({
+          baseUrl: base,
+          apiKey: cfg.privateComputerApiKey,
+          blocks,
+        });
+
+        let commitOut: Awaited<ReturnType<typeof putHiveMemory>> | undefined;
+        if (argv.commit) {
+          let metadataURI = "";
+          if (argv["attestation-metadata"] && result.attestation) {
+            const compact = JSON.stringify({ v: 1, pc: result.attestation });
+            metadataURI = compact.length > 1900 ? `${compact.slice(0, 1897)}...` : compact;
+          }
+          commitOut = await putHiveMemory({
+            cfg,
+            hiveId,
+            plaintext: result.summary,
+            hiveKeyHex: hiveKey,
+            segment: String(argv["summary-segment"]),
+            scope: "shared",
+            agentAddress: agent,
+            metadataURI,
+          });
+        }
+
+        if (argv.json) {
+          console.log(
+            JSON.stringify(
+              {
+                summary: result.summary,
+                attestation: result.attestation,
+                commit: commitOut,
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          console.log(result.summary);
+          if (commitOut) {
+            console.error(`committed shared/${String(argv["summary-segment"])} tx ${commitOut.txHash}`);
+          }
+          if (result.attestation && process.env.HIVECLAW_VERBOSE) {
+            console.error("attestation:", JSON.stringify(result.attestation));
+          }
+        }
+      },
+    )
+    .command(
+      "reflect <hiveId>",
+      "Reflection loop: summarize segments → commit summary to shared/<segment>",
+      (y) =>
+        y
+          .option("shared", {
+            type: "array",
+            default: [],
+            describe: "Repeatable segment paths under shared/",
+          })
+          .option("private", {
+            type: "array",
+            default: [],
+            describe: "Repeatable segment paths under private/<you>/",
+          })
+          .option("summary-segment", {
+            type: "string",
+            default: "summary/rolling",
+            describe: "Where to store the rolling summary under shared/",
+          })
+          .option("attestation-metadata", {
+            type: "boolean",
+            default: false,
+            describe: "Store compact PC attestation JSON in on-chain metadataURI",
+          })
+          .option("json", {
+            type: "boolean",
+            default: false,
+            describe: "Print full JSON result",
+          }),
+      async (argv) => {
+        const cfg = loadHiveclawConfig();
+        requireRegistry(cfg);
+        requireSigner(cfg);
+        const hiveId = BigInt(String(argv.hiveId));
+        const pk = requireSigner(cfg);
+        const agent = addressFromPrivateKey(pk);
+        const hiveKey = resolveHiveKeyHex(hiveId, cfg);
+        if (!hiveKey) throw new Error("Set hive key env for this hive id");
+        const base = cfg.privateComputerBaseUrl;
+        if (!base) throw new Error("Set HIVECLAW_PRIVATE_COMPUTER_URL");
+        const shared = argv.shared as string[];
+        const priv = argv.private as string[];
+        if (shared.length === 0 && priv.length === 0) {
+          throw new Error("Pass --shared and/or --private segment(s)");
+        }
+        const out = await reflectAndCommitShared({
+          cfg,
+          hiveId,
+          agentAddress: agent,
+          hiveKeyHex: hiveKey,
+          sharedSegments: shared,
+          privateSegments: priv,
+          summarySegment: String(argv["summary-segment"]),
+          privateComputerBaseUrl: base,
+          privateComputerApiKey: cfg.privateComputerApiKey,
+          attachAttestationToMetadataUri: Boolean(argv["attestation-metadata"]),
+        });
+        if (argv.json) {
+          console.log(JSON.stringify(out, null, 2));
+        } else {
+          console.log(out.summarize.summary);
+          console.error(`committed tx ${out.commit.txHash} → ${out.commit.logicalPath}`);
+        }
+      },
     )
     .demandCommand(1, "Specify a command")
     .strict()
