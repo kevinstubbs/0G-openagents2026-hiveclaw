@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "outputDirectory": null,
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter hiveclaw-dashboard run build"
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "pnpm run build"
 }

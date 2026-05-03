@@ -6,6 +6,7 @@
     "docs:dashboard": "pnpm --filter hiveclaw-dashboard docs:dev",
     "docs:build": "pnpm --filter hiveclaw-dashboard docs:build",
     "build": "pnpm run docs:build && pnpm -r --filter '!hiveclaw-dashboard-docs' run build",
+    "build:vercel": "pnpm --filter hiveclaw-core run build && pnpm --filter hiveclaw-dashboard run build",
     "test": "forge test --root contracts",
     "doctor": "node apps/hiveclaw-cli/dist/cli.js doctor",
     "healthcheck": "node apps/hiveclaw-cli/dist/cli.js doctor",

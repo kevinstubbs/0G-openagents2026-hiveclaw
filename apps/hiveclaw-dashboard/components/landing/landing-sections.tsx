@@ -1,5 +1,6 @@
 "use client";
 
+import { resolvePublicGithubUrl } from "@/lib/github-url";
 import Link from "next/link";
 import { C, DEFAULT_HERO_ACCENT } from "./colors";
 import { ArchDiagram, HeroIllustration } from "./diagrams";
@@ -838,9 +839,7 @@ function HeroSection({ accent, githubUrl }: { accent: string; githubUrl?: string
 
 export function LandingPage({ githubUrl: githubUrlProp }: { githubUrl?: string }) {
   const heroAccent = DEFAULT_HERO_ACCENT;
-  const envGh = process.env.NEXT_PUBLIC_GITHUB_URL;
-  const githubUrl =
-    githubUrlProp ?? (typeof envGh === "string" && envGh.length > 0 ? envGh : undefined);
+  const githubUrl = resolvePublicGithubUrl(githubUrlProp);
 
   return (
     <div className="hc-landing">
