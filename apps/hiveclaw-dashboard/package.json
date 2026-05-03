@@ -6,7 +6,7 @@
     "dev": "next dev --port 3040",
     "docs:dev": "pnpm --dir docs start",
     "docs:build": "pnpm --dir docs build",
-    "build": "pnpm --filter hiveclaw-core run build && next build",
+    "build": "next build",
     "start": "next start --port 3040",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"

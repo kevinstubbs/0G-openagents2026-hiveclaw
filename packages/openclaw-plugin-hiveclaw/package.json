@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsup"
+    "build": "pnpm --filter hiveclaw-core run build && tsup"
   },
   "dependencies": {
     "@0gfoundation/0g-storage-ts-sdk": "^1.2.8",

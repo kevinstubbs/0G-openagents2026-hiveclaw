@@ -8,6 +8,8 @@
 # package.json and fresh npm install (only @sinclair/typebox); hiveclaw-core is
 # bundled into dist via tsup.
 #
+# Install uses `openclaw plugins install --force` so re-running overwrites the tracked plugin.
+#
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -19,6 +21,7 @@ if ! command -v openclaw >/dev/null 2>&1; then
 fi
 
 cd "$REPO_ROOT"
+# openclaw-plugin-hiveclaw's build runs hiveclaw-core first (bundled via tsup noExternal; exports need dist/).
 pnpm --filter openclaw-plugin-hiveclaw run build
 
 STAGE="$(mktemp -d "${TMPDIR:-/tmp}/hiveclaw-openclaw-plugin.XXXXXX")"
@@ -33,5 +36,5 @@ node "${REPO_ROOT}/scripts/strip-openclaw-plugin-package-json.mjs" "${STAGE}/pac
   npm install --omit=dev
 )
 
-openclaw plugins install "${STAGE}"
+openclaw plugins install --force "${STAGE}"
 echo "OpenClaw plugin 'hiveclaw' installed (one per user; all gateways on this host use it)."

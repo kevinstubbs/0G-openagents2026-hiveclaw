@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -14,7 +14,14 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./*"] }
+    "paths": {
+      "@/*": ["./*"],
+      "hiveclaw-core": ["../../packages/hiveclaw-core/src/index.ts"],
+      "hiveclaw-core/hive-registry": ["../../packages/hiveclaw-core/src/hive-registry.ts"],
+      "hiveclaw-core/load-config": ["../../packages/hiveclaw-core/src/load-config.ts"],
+      "hiveclaw-core/ping-cli": ["../../packages/hiveclaw-core/src/ping-cli.ts"],
+      "hiveclaw-core/ping-resolved": ["../../packages/hiveclaw-core/src/ping-resolved.ts"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "docs"]
