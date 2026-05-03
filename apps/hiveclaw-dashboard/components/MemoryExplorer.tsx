@@ -5,7 +5,9 @@ import {
   memoryKeyFromString,
   type MemoryCommitView,
 } from "hiveclaw-core/hive-registry";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
+import { C } from "@/components/landing/colors";
+import { Card } from "@/components/landing/primitives";
 
 type Props = {
   rpcUrl: string;
@@ -13,6 +15,34 @@ type Props = {
   /** Initial hive id (user can edit). */
   initialHiveId?: string;
 };
+
+function MemoryPanelSection({
+  title,
+  accent,
+  children,
+}: {
+  title: string;
+  accent: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card accent={accent}>
+      <h2
+        style={{
+          fontFamily: "var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif",
+          fontWeight: 700,
+          fontSize: 18,
+          color: C.text,
+          margin: "0 0 16px",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        {title}
+      </h2>
+      <div style={{ display: "grid", gap: "1rem" }}>{children}</div>
+    </Card>
+  );
+}
 
 /** On-chain memoryHistory metadata + server summarize API (reads secrets from env only). */
 export function MemoryExplorer({ rpcUrl, registry, initialHiveId = "1" }: Props) {
@@ -37,61 +67,85 @@ export function MemoryExplorer({ rpcUrl, registry, initialHiveId = "1" }: Props)
     }
   }, [hiveId, logicalKey, registry, rpcUrl]);
 
+  const subtle = { fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: 14, color: C.muted, margin: 0 };
+  const row = { display: "flex", flexWrap: "wrap" as const, gap: "0.65rem", alignItems: "center" };
+
   return (
-    <section>
-      <h2>Memory explorer</h2>
-      <p style={{ fontSize: "0.9rem", opacity: 0.9 }}>
-        Loads <code>memoryHistory</code> from HiveRegistry (writer, timestamp, pointer, hash). Decrypt with{" "}
-        <code>hiveclaw memory get</code> using your hive key.
-      </p>
-      <p>
-        <label>
-          Hive id{" "}
-          <input value={hiveId} onChange={(e) => setHiveId(e.target.value)} style={{ width: 100 }} />
-        </label>
-      </p>
-      <p>
-        <label>
-          Logical key{" "}
-          <input
-            value={logicalKey}
-            onChange={(e) => setLogicalKey(e.target.value)}
-            style={{ width: 320 }}
-          />
-        </label>{" "}
-        <button type="button" disabled={busy} onClick={() => void loadHistory()}>
-          Load history
-        </button>
-      </p>
-      {history && history.length > 0 ? (
-        <div>
-          <p>
-            <strong>{history.length}</strong> commit(s)
-          </p>
-          <ul style={{ fontSize: 12, overflow: "auto", maxHeight: 280 }}>
-            {history.map((h, i) => (
-              <li key={`${h.storagePointer}-${i}`}>
-                writer {h.writer} · ts {h.timestamp} · ptr {h.storagePointer.slice(0, 18)}… · hash{" "}
-                {h.contentHash.slice(0, 18)}…
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : history ? (
-        <p>No commits for this key.</p>
-      ) : null}
-      <hr />
-      <h3>Summarize (server)</h3>
-      <p style={{ fontSize: "0.85rem", opacity: 0.9 }}>
-        Calls <code>/api/summarize</code> — requires server env: hive keys, chain key, storage key, Private Computer URL.
-      </p>
-      <SummarizeForm hiveId={hiveId} />
-      {err ? (
-        <p role="alert" style={{ color: "crimson", whiteSpace: "pre-wrap" }}>
-          {err}
+    <div className="hc-dashboard-tools" style={{ display: "grid", gap: "1.25rem" }}>
+      <MemoryPanelSection title="Memory explorer" accent={C.green}>
+        <p style={subtle}>
+          Loads <code className="hc-dashboard-code">memoryHistory</code> from HiveRegistry (writer, timestamp, pointer,
+          hash). Decrypt with <code className="hc-dashboard-code">hiveclaw memory get</code> using your hive key.
         </p>
-      ) : null}
-    </section>
+        <p style={row}>
+          <label style={{ ...row, gap: 8 }}>
+            <span style={{ fontWeight: 600, color: C.text }}>Hive id</span>
+            <input value={hiveId} onChange={(e) => setHiveId(e.target.value)} style={{ width: 100 }} />
+          </label>
+        </p>
+        <p style={row}>
+          <label style={{ ...row, gap: 8, flex: 1, minWidth: 200 }}>
+            <span style={{ fontWeight: 600, color: C.text }}>Logical key</span>
+            <input
+              value={logicalKey}
+              onChange={(e) => setLogicalKey(e.target.value)}
+              style={{ flex: 1, minWidth: 200, maxWidth: 400 }}
+            />
+          </label>
+          <button type="button" disabled={busy} onClick={() => void loadHistory()}>
+            Load history
+          </button>
+        </p>
+        {history && history.length > 0 ? (
+          <div
+            style={{
+              padding: "14px 16px",
+              borderRadius: 12,
+              background: C.bgAlt,
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            <p style={{ fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: 14, color: C.text, margin: "0 0 10px" }}>
+              <strong>{history.length}</strong> <span style={{ color: C.muted }}>commit(s)</span>
+            </p>
+            <ul
+              style={{
+                margin: 0,
+                paddingLeft: 18,
+                fontFamily: "var(--font-jetbrains), 'JetBrains Mono', monospace",
+                fontSize: 12,
+                color: C.muted,
+                lineHeight: 1.55,
+                overflow: "auto",
+                maxHeight: 280,
+              }}
+            >
+              {history.map((h, i) => (
+                <li key={`${h.storagePointer}-${i}`}>
+                  writer {h.writer} · ts {h.timestamp} · ptr {h.storagePointer.slice(0, 18)}… · hash{" "}
+                  {h.contentHash.slice(0, 18)}…
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : history ? (
+          <p style={subtle}>No commits for this key.</p>
+        ) : null}
+      </MemoryPanelSection>
+
+      <MemoryPanelSection title="Summarize (server)" accent={C.orange}>
+        <p style={subtle}>
+          Calls <code className="hc-dashboard-code">/api/summarize</code> — requires server env: hive keys, chain key,
+          storage key, Private Computer URL.
+        </p>
+        <SummarizeForm hiveId={hiveId} />
+        {err ? (
+          <p role="alert" style={{ color: C.red, whiteSpace: "pre-wrap", fontSize: 14, margin: 0 }}>
+            {err}
+          </p>
+        ) : null}
+      </MemoryPanelSection>
+    </div>
   );
 }
 
@@ -146,16 +200,16 @@ function SummarizeForm({ hiveId }: { hiveId: string }) {
   }, [attestationMeta, commitSummary, hiveId, priv, shared, summarySegment]);
 
   return (
-    <div style={{ display: "grid", gap: 8 }}>
-      <label>
-        Shared segments (comma-separated, segments under shared/){" "}
+    <div style={{ display: "grid", gap: 12 }}>
+      <label style={{ display: "grid", gap: 6 }}>
+        <span style={{ fontWeight: 600, fontSize: 13, color: C.text }}>Shared segments (comma-separated)</span>
         <input value={shared} onChange={(e) => setShared(e.target.value)} style={{ width: "100%" }} />
       </label>
-      <label>
-        Private segments (comma-separated, segments under private/&lt;your addr&gt;/){" "}
+      <label style={{ display: "grid", gap: 6 }}>
+        <span style={{ fontWeight: 600, fontSize: 13, color: C.text }}>Private segments (comma-separated)</span>
         <input value={priv} onChange={(e) => setPriv(e.target.value)} style={{ width: "100%" }} />
       </label>
-      <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.text }}>
         <input
           type="checkbox"
           checked={commitSummary}
@@ -165,15 +219,15 @@ function SummarizeForm({ hiveId }: { hiveId: string }) {
       </label>
       {commitSummary ? (
         <>
-          <label>
-            Summary segment under shared/{" "}
+          <label style={{ display: "grid", gap: 6 }}>
+            <span style={{ fontWeight: 600, fontSize: 13, color: C.text }}>Summary segment under shared/</span>
             <input
               value={summarySegment}
               onChange={(e) => setSummarySegment(e.target.value)}
               style={{ width: "100%" }}
             />
           </label>
-          <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.text }}>
             <input
               type="checkbox"
               checked={attestationMeta}
@@ -183,27 +237,44 @@ function SummarizeForm({ hiveId }: { hiveId: string }) {
           </label>
         </>
       ) : null}
-      <button type="button" disabled={busy} onClick={() => void run()}>
-        Summarize via Private Computer (server env)
-      </button>
+      <div>
+        <button type="button" disabled={busy} onClick={() => void run()}>
+          Summarize via Private Computer (server env)
+        </button>
+      </div>
       {result?.error ? (
-        <p role="alert" style={{ color: "crimson", whiteSpace: "pre-wrap" }}>
+        <p role="alert" style={{ color: C.red, whiteSpace: "pre-wrap", fontSize: 14, margin: 0 }}>
           {result.error}
         </p>
       ) : null}
       {result?.summary != null ? (
         <>
-          <pre style={{ fontSize: 12, whiteSpace: "pre-wrap" }}>{result.summary}</pre>
+          <pre className="hc-dashboard-pre" style={{ whiteSpace: "pre-wrap" }}>
+            {result.summary}
+          </pre>
           {result.commit ? (
-            <p style={{ fontSize: 12 }}>
-              Committed <code>{result.commit.logicalPath}</code> · tx{" "}
-              <code>{result.commit.txHash}</code>
+            <p style={{ fontFamily: "var(--font-inter), Inter, sans-serif", fontSize: 13, color: C.muted, margin: 0 }}>
+              Committed <code className="hc-dashboard-code">{result.commit.logicalPath}</code> · tx{" "}
+              <code className="hc-dashboard-code">{result.commit.txHash}</code>
             </p>
           ) : null}
           {result.attestation ? (
             <details>
-              <summary style={{ cursor: "pointer", fontSize: 13 }}>PC attestation metadata</summary>
-              <pre style={{ fontSize: 11, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>
+              <summary
+                style={{
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontFamily: "var(--font-inter), Inter, sans-serif",
+                  fontWeight: 600,
+                  color: C.text,
+                }}
+              >
+                PC attestation metadata
+              </summary>
+              <pre
+                className="hc-dashboard-pre"
+                style={{ marginTop: 10, fontSize: 11, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}
+              >
                 {JSON.stringify(result.attestation, null, 2)}
               </pre>
             </details>

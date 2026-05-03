@@ -15,10 +15,12 @@
     "build": "tsup"
   },
   "dependencies": {
+    "@0gfoundation/0g-storage-ts-sdk": "^1.2.8",
     "@sinclair/typebox": "^0.34.33",
-    "hiveclaw-core": "workspace:*"
+    "ethers": "6.13.1"
   },
   "devDependencies": {
+    "hiveclaw-core": "workspace:*",
     "@types/node": "^22.15.3",
     "openclaw": "2026.4.29",
     "tsup": "^8.4.0",

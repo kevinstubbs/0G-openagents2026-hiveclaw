@@ -10,7 +10,7 @@ This skill ships with the **hiveclaw** tool plugin. These tools add **encrypted 
 ## Before mutating memory
 
 1. Run **`hiveclaw_ping`** — verifies RPC, bootstrap/HiveRegistry reachability, and storage path when keys are set.
-2. Ensure **`chainPrivateKey`**, **`storagePrivateKey`**, and hive symmetric keys are configured (env `HIVECLAW_*` or plugin config). Memory writes require **hive membership** on-chain.
+2. Ensure **`chainPrivateKey`**, **`storagePrivateKey`**, and hive symmetric keys are set in **`plugins.entries.hiveclaw.config`** (typically **`"${HIVECLAW_*}"`** refs resolved by OpenClaw). Memory writes require **hive membership** on-chain.
 3. Optionally **`hiveclaw_list_my_hives`** if the hive id is unknown (otherwise use `defaultHiveId` / `hiveId` on each tool).
 
 ## Tool reference (when to use which)
@@ -36,6 +36,6 @@ This skill ships with the **hiveclaw** tool plugin. These tools add **encrypted 
 
 - **Cost / side effects**: commits touch chain and storage; batch meaningful updates, avoid tight loops.
 - **Private lane**: treat as **namespace + policy**, not strong confidentiality against malicious hive members.
-- **Private Computer**: reflection and summarization fail fast if `privateComputerBaseUrl` (or `HIVECLAW_PRIVATE_COMPUTER_URL`) is unset.
+- **Private Computer**: reflection and summarization fail fast if `privateComputerBaseUrl` is unset in plugin config.
 
-For install and config keys, see the repo plugin documentation and `HiveclawPluginConfig` / `loadHiveclawConfig`.
+For install and config keys, see the repo plugin documentation and **`HiveclawPluginConfig`** (OpenClaw: set under **`plugins.entries.hiveclaw.config`**, with **`"${...}"`** for secrets).

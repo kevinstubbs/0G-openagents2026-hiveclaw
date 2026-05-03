@@ -1,4 +1,4 @@
-import type { HiveclawConfig } from "./config.js";
+import type { HiveclawConfig } from "./config-types.js";
 
 /** Resolve hive symmetric key: overrides.hiveKeysById?.[id] || env JSON map || single HIVECLAW_HIVE_KEY_HEX. */
 export function resolveHiveKeyHex(

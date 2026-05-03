@@ -8,8 +8,11 @@ pnpm monorepo: **contracts** (Foundry bootstrap), **`hiveclaw-core`**, **OpenCla
 cp .env.example .env
 pnpm install
 pnpm run build
+pnpm run openclaw:plugin
 pnpm run doctor
 ```
+
+`pnpm run openclaw:plugin` builds the HiveClaw OpenClaw plugin and runs **`openclaw plugins install`** once for your user (skips if `openclaw` is not on `PATH`). **You do not run install per gateway** — every `openclaw gateway` process on this machine shares the same plugin registry.
 
 `pnpm run build` rebuilds the **`/docs`** static site (Docusaurus → `apps/hiveclaw-dashboard/public/docs`) before building every workspace package (see root `docs:build` script).
 
@@ -48,7 +51,7 @@ NEXT_PUBLIC_HIVECLAW_HIVE_REGISTRY_CONTRACT=0x496A34251Da57a3C1907325884323147D5
   - **Preview docs + Next together:** run `pnpm --filter hiveclaw-dashboard docs:build`, then `pnpm --filter hiveclaw-dashboard dev`. Edit MDX, then run `docs:build` again to refresh `/docs` (static until rebuilt).
   - **Docs-only live reload:** `pnpm --filter hiveclaw-dashboard docs:dev` runs Docusaurus on port **3041** (fast iteration; use the full-site flow above when you need `/status` and `/hive` alongside `/docs`).
   - **E2E:** `pnpm --filter hiveclaw-dashboard exec playwright install chromium` once, then `pnpm --filter hiveclaw-dashboard test:e2e` (starts production server via Playwright after `pnpm run build` inside the dashboard package, unless something is already listening on port 3040).
-- **OpenClaw:** `pnpm --filter openclaw-plugin-hiveclaw run build`, then `openclaw plugins install ./packages/openclaw-plugin-hiveclaw`. Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as needed and allow tool `hiveclaw_ping` / plugin id per OpenClaw docs.
+- **OpenClaw:** from repo root run **`pnpm run openclaw:plugin`** (one-time per machine). **Do not** run `openclaw plugins install ./packages/openclaw-plugin-hiveclaw` by hand—pnpm’s `hiveclaw-core` symlink fails OpenClaw’s install scan; the script stages a clean copy first. Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as needed; checked-in demo configs already set **`tools.alsoAllow: ["hiveclaw"]`** (see `demo/rbv/gateways/`).
 - **Three-gateway demo (Researcher → Builder → Reviewer):** step-by-step setup, prompts, and gateway templates live under [`demo/rbv/README.md`](demo/rbv/README.md).
 
 ## Phase 1 exit checks

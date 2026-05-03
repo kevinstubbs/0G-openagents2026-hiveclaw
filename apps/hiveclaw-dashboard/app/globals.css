@@ -93,3 +93,103 @@ main.app-shell h1 {
   font-size: 1.25rem;
   margin-top: 0;
 }
+
+/* Dashboard routes — landing-adjacent polish */
+main.hc-dashboard {
+  min-height: calc(100vh - 4rem);
+  background: #ffffff;
+}
+
+.hc-dashboard-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-top: calc(4rem + 40px);
+}
+
+.hc-dashboard-hero {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.hc-dashboard-pre {
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: 12px;
+  overflow: auto;
+  font-family: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #e8e4f0;
+  background: #1a1825;
+  border: 1px solid #e5e5ea;
+}
+
+.hc-dashboard-code {
+  font-family: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.9em;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #f4f4f6;
+  border: 1px solid #e5e5ea;
+  color: #0f0f14;
+}
+
+.hc-dashboard-tools input:not([type="checkbox"]),
+.hc-dashboard-tools select,
+.hc-dashboard-tools textarea {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 14px;
+  border: 1px solid #e5e5ea;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #fff;
+  color: #0f0f14;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hc-dashboard-tools input:not([type="checkbox"]):focus,
+.hc-dashboard-tools select:focus,
+.hc-dashboard-tools textarea:focus {
+  outline: none;
+  border-color: #a259ff66;
+  box-shadow: 0 0 0 3px #a259ff22;
+}
+
+.hc-dashboard-tools button[type="button"] {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 10px 18px;
+  border: 1.5px solid #e5e5ea;
+  background: #ffffff;
+  color: #0f0f14;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.hc-dashboard-tools button[type="button"]:hover:not(:disabled) {
+  background: #fafafa;
+  border-color: #d1d1d6;
+}
+
+.hc-dashboard-tools button[type="button"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .hc-dashboard-two-col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hc-dashboard-inner {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: calc(4rem + 28px);
+  }
+}

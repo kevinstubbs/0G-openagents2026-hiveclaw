@@ -3,7 +3,7 @@ import { JsonRpcProvider, Wallet } from "ethers";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import type { HiveclawConfig } from "./config.js";
+import type { HiveclawConfig } from "./config-types.js";
 
 /** Upload arbitrary bytes as a file; returns root hash from indexer (bytes32-compatible hex). */
 export async function uploadBlob(

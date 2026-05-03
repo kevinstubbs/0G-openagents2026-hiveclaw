@@ -9,7 +9,8 @@
     "test": "forge test --root contracts",
     "doctor": "node apps/hiveclaw-cli/dist/cli.js doctor",
     "healthcheck": "node apps/hiveclaw-cli/dist/cli.js doctor",
-    "deploy:testnet": "dotenv -e .env -- bash contracts/deploy-testnet.sh"
+    "deploy:testnet": "dotenv -e .env -- bash contracts/deploy-testnet.sh",
+    "openclaw:plugin": "bash scripts/install-openclaw-hiveclaw-plugin.sh"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0"

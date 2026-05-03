@@ -1,4 +1,4 @@
-import type { HiveclawConfig } from "./config.js";
+import type { HiveclawConfig } from "./config-types.js";
 import { getHiveMemory, putHiveMemory } from "./hive-memory.js";
 import { summarizeMemories, type SummarizeResult } from "./summarize.js";
 

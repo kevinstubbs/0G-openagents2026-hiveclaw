@@ -5,3 +5,4 @@ reviewer.env
 
 # Per-gateway OpenClaw state (created when you run the gateways)
 .openclaw-state/
+gateways/*.json.*

@@ -4,71 +4,36 @@ import {
   addressFromPrivateKey,
   getHiveMemory,
   getMemberHives,
-  loadHiveclawConfig,
   putHiveMemory,
   reflectAndCommitShared,
   resolveHiveKeyHex,
-  runPing,
+  runPingWithResolvedConfig,
   summarizeMemories,
   type HiveclawConfig,
 } from "hiveclaw-core";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
-
-type HiveclawPluginConfig = {
-  rpcUrl?: string;
-  indexerUrl?: string;
-  bootstrapContract?: string;
-  hiveRegistryContract?: string;
-  storagePrivateKey?: string;
-  chainPrivateKey?: string;
-  expectedChainId?: number;
-  /** Single default hive encryption key (32-byte hex). */
-  defaultHiveKeyHex?: string;
-  /** JSON string mapping hive id → hex key, e.g. '{"1":"0xab..."}' */
-  hiveKeysJson?: string;
-  defaultHiveId?: number | string;
-  privateComputerBaseUrl?: string;
-  privateComputerApiKey?: string;
-};
-
-function pluginOverrides(api: OpenClawPluginApi): Partial<HiveclawConfig> {
-  const raw = api.pluginConfig as HiveclawPluginConfig | undefined;
-  if (!raw) return {};
-  let hiveKeysById: Record<string, string> | undefined;
-  if (raw.hiveKeysJson) {
-    try {
-      hiveKeysById = JSON.parse(raw.hiveKeysJson) as Record<string, string>;
-    } catch {
-      hiveKeysById = undefined;
-    }
-  }
-  return {
-    rpcUrl: raw.rpcUrl,
-    indexerUrl: raw.indexerUrl,
-    bootstrapContract: raw.bootstrapContract,
-    hiveRegistryContract: raw.hiveRegistryContract,
-    storagePrivateKey: raw.storagePrivateKey,
-    chainPrivateKey: raw.chainPrivateKey,
-    expectedChainId: raw.expectedChainId,
-    defaultHiveKeyHex: raw.defaultHiveKeyHex,
-    hiveKeysById,
-    privateComputerBaseUrl: raw.privateComputerBaseUrl,
-    privateComputerApiKey: raw.privateComputerApiKey,
-  };
-}
+import { hiveclawConfigFromGateway, type HiveclawPluginConfig } from "./openclaw-config.js";
 
 function requireFullCfg(api: OpenClawPluginApi): HiveclawConfig {
-  return loadHiveclawConfig(pluginOverrides(api));
+  return hiveclawConfigFromGateway(api);
 }
 
 function requireKeys(cfg: HiveclawConfig, hiveId: bigint): { cfg: HiveclawConfig; hiveKey: string } {
-  if (!cfg.chainPrivateKey) throw new Error("chainPrivateKey / HIVECLAW_CHAIN_PRIVATE_KEY required for memory tools");
-  if (!cfg.storagePrivateKey) throw new Error("storagePrivateKey / HIVECLAW_STORAGE_PRIVATE_KEY required for uploads");
-  if (!cfg.hiveRegistryContract) throw new Error("hiveRegistryContract required");
+  if (!cfg.chainPrivateKey) {
+    throw new Error(
+      "chainPrivateKey required — set plugins.entries.hiveclaw.config.chainPrivateKey in gateway JSON (e.g. \"${HIVECLAW_CHAIN_PRIVATE_KEY}\")",
+    );
+  }
+  if (!cfg.storagePrivateKey) {
+    throw new Error(
+      "storagePrivateKey required — set plugins.entries.hiveclaw.config.storagePrivateKey (e.g. \"${HIVECLAW_STORAGE_PRIVATE_KEY}\")",
+    );
+  }
+  if (!cfg.hiveRegistryContract) throw new Error("hiveRegistryContract required in plugin config");
   const hiveKey = resolveHiveKeyHex(hiveId, cfg);
   if (!hiveKey) {
     throw new Error(
-      `No hive symmetric key for hiveId ${hiveId} — set defaultHiveKeyHex or hiveKeysJson in plugin config, or HIVECLAW_HIVE_KEYS_JSON / HIVECLAW_HIVE_KEY_HEX in env`,
+      `No hive symmetric key for hiveId ${hiveId} — set defaultHiveKeyHex or hiveKeysJson in plugins.entries.hiveclaw.config`,
     );
   }
   return { cfg, hiveKey };
@@ -98,7 +63,7 @@ export default definePluginEntry({
         "Chain + HiveRegistry + 0G storage smoke. Returns JSON (use for health before memory ops).",
       parameters: Type.Object({}),
       async execute() {
-        const result = await runPing(pluginOverrides(api));
+        const result = await runPingWithResolvedConfig(hiveclawConfigFromGateway(api));
         const text = JSON.stringify(result, null, 2);
         return { content: [{ type: "text", text }], details: { result } };
       },
@@ -115,7 +80,7 @@ export default definePluginEntry({
         if (!cfg.chainPrivateKey) throw new Error("chainPrivateKey not configured");
         const who = addressFromPrivateKey(cfg.chainPrivateKey);
         const ids = await getMemberHives(cfg.rpcUrl, cfg.hiveRegistryContract, who);
-        const text = JSON.stringify({ address: who, hiveIds: ids.map((x) => x.toString()) }, null, 2);
+        const text = JSON.stringify({ address: who, hiveIds: ids.map((x: bigint) => x.toString()) }, null, 2);
         return { content: [{ type: "text", text }], details: {} };
       },
     });
@@ -263,7 +228,7 @@ export default definePluginEntry({
         const { cfg, hiveKey } = requireKeys(cfg0, hiveId);
         const agent = addressFromPrivateKey(cfg.chainPrivateKey!);
         const base = cfg.privateComputerBaseUrl;
-        if (!base) throw new Error("privateComputerBaseUrl / HIVECLAW_PRIVATE_COMPUTER_URL not set");
+        if (!base) throw new Error("privateComputerBaseUrl must be set in plugins.entries.hiveclaw.config");
 
         const blocks: { label: string; text: string }[] = [];
         for (const seg of p.sharedSegments ?? []) {
@@ -355,7 +320,7 @@ export default definePluginEntry({
         const { cfg, hiveKey } = requireKeys(cfg0, hiveId);
         const agent = addressFromPrivateKey(cfg.chainPrivateKey!);
         const base = cfg.privateComputerBaseUrl;
-        if (!base) throw new Error("privateComputerBaseUrl / HIVECLAW_PRIVATE_COMPUTER_URL not set");
+        if (!base) throw new Error("privateComputerBaseUrl must be set in plugins.entries.hiveclaw.config");
 
         const out = await reflectAndCommitShared({
           cfg,

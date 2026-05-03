@@ -38,12 +38,42 @@ The OpenClaw plugin can override many of these via its config object; names belo
 
 ## Hive encryption (symmetric)
 
-Per-hive AES-style keys protect blobs **before** upload:
+Per-hive symmetric keys protect blobs **before** upload. Each key must be **32 bytes** (256 bits), encoded as hex: **`0x`** followed by **64** hexadecimal characters.
 
 | Variable | Purpose |
 |----------|---------|
-| `HIVECLAW_HIVE_KEY_HEX` | Single 32-byte hex key (optional default hive). |
-| `HIVECLAW_HIVE_KEYS_JSON` | JSON map of hive id → hex key, e.g. `'{"1":"0x..."}'`. |
+| `HIVECLAW_HIVE_KEY_HEX` | Single default hive key when you do not use the JSON map. |
+| `HIVECLAW_HIVE_KEYS_JSON` | JSON object mapping **hive id as string** → **hex key**, e.g. `'{"1":"0x0123...abcd"}'`. Use when you have multiple hives or want the key scoped by id explicitly. |
+
+<h3 id="hive-keys-json">Generating <code>HIVECLAW_HIVE_KEYS_JSON</code></h3>
+
+1. **Pick the hive id** from on-chain reality (`hive create`, dashboard, or `hive show`) — the JSON keys must match that id (e.g. `"1"`).
+
+2. **Generate a random 32-byte key** (pick one):
+
+   ```bash
+   openssl rand -hex 32 | awk '{print "0x" $1}'
+   ```
+
+   ```bash
+   node -e "console.log('0x' + require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+3. **Set the variable** as a single-line JSON string. Quote the whole value in shell config so inner double quotes stay intact:
+
+   ```bash
+   export HIVECLAW_HIVE_KEYS_JSON='{"1":"0xYOUR_64_HEX_CHARS_AFTER_0x"}'
+   ```
+
+   Multiple hives:
+
+   ```bash
+   export HIVECLAW_HIVE_KEYS_JSON='{"1":"0x...","2":"0x..."}'
+   ```
+
+4. **Same key for every wallet** that should read/write that hive’s ciphertext (e.g. all three RBV demo env files share **identical** `HIVECLAW_HIVE_KEYS_JSON`). OpenClaw plugin **`hiveKeysJson`** must encode the same mapping if you set it in gateway JSON instead of env.
+
+Never commit real keys; keep them in **`.env`** or secret stores only.
 
 ## Private Computer (summarization)
 

@@ -7,7 +7,7 @@ Two OpenClaw agents share a **hive** on 0G testnet: Agent **A** publishes **shar
 - Deployed `HiveRegistry` + env from repo root `.env.example`
 - Funded `HIVECLAW_CHAIN_PRIVATE_KEY` + `HIVECLAW_STORAGE_PRIVATE_KEY`
 - Shared **hive symmetric key** (`HIVECLAW_HIVE_KEYS_JSON` or `HIVECLAW_HIVE_KEY_HEX`)
-- Plugin installed: `openclaw plugins install ./packages/openclaw-plugin-hiveclaw` (from monorepo root)
+- Plugin installed once per machine: `pnpm run openclaw:plugin` (from monorepo root)
 
 ## Configure OpenClaw (`openclaw.json`)
 

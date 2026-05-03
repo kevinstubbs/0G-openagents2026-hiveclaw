@@ -1,11 +1,11 @@
 import {
   getHiveMemory,
-  loadHiveclawConfig,
   putHiveMemory,
   resolveHiveKeyHex,
   summarizeMemories,
   addressFromPrivateKey,
 } from "hiveclaw-core";
+import { loadHiveclawConfig } from "hiveclaw-core/load-config";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";

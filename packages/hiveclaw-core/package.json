@@ -2,6 +2,7 @@
   "name": "hiveclaw-core",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,6 +14,18 @@
     "./hive-registry": {
       "types": "./dist/hive-registry.d.ts",
       "import": "./dist/hive-registry.js"
+    },
+    "./ping-resolved": {
+      "types": "./dist/ping-resolved.d.ts",
+      "import": "./dist/ping-resolved.js"
+    },
+    "./load-config": {
+      "types": "./dist/load-config.d.ts",
+      "import": "./dist/load-config.js"
+    },
+    "./ping-cli": {
+      "types": "./dist/ping-cli.d.ts",
+      "import": "./dist/ping-cli.js"
     }
   },
   "scripts": {

@@ -1,4 +1,4 @@
-import { loadHiveclawConfig, type HiveclawConfig } from "./config.js";
+import type { HiveclawConfig } from "./config-types.js";
 import { getChainId, getLatestBlockNumber, readBootstrapContract } from "./chain.js";
 import { readHiveRegistrySnapshot } from "./hive-registry.js";
 import { runStorageSmoke, type StorageSmokeResult } from "./storage-smoke.js";
@@ -12,8 +12,8 @@ export type HiveclawPingResult = {
   storage: StorageSmokeResult;
 };
 
-export async function runPing(overrides?: Partial<HiveclawConfig>): Promise<HiveclawPingResult> {
-  const cfg = loadHiveclawConfig(overrides);
+/** Ping using an already-resolved config (no env reads). OpenClaw hosts call this after merging gateway JSON. */
+export async function runPingWithResolvedConfig(cfg: HiveclawConfig): Promise<HiveclawPingResult> {
   const chainId = await getChainId(cfg.rpcUrl);
   const blockNumber = await getLatestBlockNumber(cfg.rpcUrl);
 

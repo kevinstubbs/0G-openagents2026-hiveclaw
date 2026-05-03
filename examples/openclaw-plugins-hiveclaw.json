@@ -1,11 +1,18 @@
 {
+  "tools": {
+    "profile": "coding",
+    "alsoAllow": ["hiveclaw"]
+  },
   "plugins": {
     "entries": {
       "hiveclaw": {
         "config": {
           "rpcUrl": "https://evmrpc-testnet.0g.ai",
           "indexerUrl": "https://indexer-storage-testnet-turbo.0g.ai",
-          "expectedChainId": 16602
+          "expectedChainId": 16602,
+          "chainPrivateKey": "${HIVECLAW_CHAIN_PRIVATE_KEY}",
+          "storagePrivateKey": "${HIVECLAW_STORAGE_PRIVATE_KEY}",
+          "hiveKeysJson": "${HIVECLAW_HIVE_KEYS_JSON}"
         }
       }
     }

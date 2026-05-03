@@ -1,10 +1,29 @@
 {
   "gateway": {
-    "port": 18791
+    "mode": "local",
+    "port": 18791,
+    "auth": {
+      "mode": "token",
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
+    }
+  },
+  "discovery": {
+    "mdns": {
+      "mode": "off"
+    }
+  },
+  "tools": {
+    "profile": "coding",
+    "alsoAllow": [
+      "hiveclaw"
+    ]
   },
   "agents": {
     "defaults": {
-      "workspace": "demo/rbv/workspaces/reviewer"
+      "workspace": "demo/rbv/workspaces/reviewer",
+      "model": {
+        "primary": "openai/gpt-5.4-mini"
+      }
     }
   },
   "plugins": {
@@ -18,9 +37,19 @@
           "bootstrapContract": "0x4e6A80653B419777d281622249bd49Dc35131005",
           "hiveRegistryContract": "0x496A34251Da57a3C1907325884323147D549626A",
           "defaultHiveId": 1,
-          "privateComputerBaseUrl": "https://pc.0g.ai"
+          "privateComputerBaseUrl": "https://pc.0g.ai",
+          "chainPrivateKey": "${HIVECLAW_CHAIN_PRIVATE_KEY}",
+          "storagePrivateKey": "${HIVECLAW_STORAGE_PRIVATE_KEY}",
+          "hiveKeysJson": "${HIVECLAW_HIVE_KEYS_JSON}"
         }
+      },
+      "openai": {
+        "enabled": true
       }
     }
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.5.2",
+    "lastTouchedAt": "2026-05-03T14:14:21.342Z"
   }
 }

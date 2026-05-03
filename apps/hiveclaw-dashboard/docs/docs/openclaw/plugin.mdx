@@ -9,14 +9,26 @@ Package: **`openclaw-plugin-hiveclaw`** (`packages/openclaw-plugin-hiveclaw`). P
 
 ## Install
 
-From the monorepo root (after building the plugin):
+From the monorepo root (after a normal `pnpm run build`, or the script builds the package):
 
 ```bash
-pnpm --filter openclaw-plugin-hiveclaw run build
-openclaw plugins install ./packages/openclaw-plugin-hiveclaw
+pnpm run openclaw:plugin
 ```
 
-Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as needed and allow tool **`hiveclaw_ping`** / plugin id per OpenClaw’s docs.
+That registers the plugin **once per user** on this machine; every `openclaw gateway` process shares it. **Do not** run `openclaw plugins install` on `./packages/openclaw-plugin-hiveclaw` directly — pnpm workspace symlinks fail OpenClaw’s install scan; use the staging script.
+
+Secrets are passed via **`plugins.entries.hiveclaw.config`** in gateway JSON (use **`"${HIVECLAW_CHAIN_PRIVATE_KEY}"`** etc.); the plugin **does not read `process.env`** so OpenClaw’s installer stays happy.
+
+Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config. OpenClaw defaults to **`tools.profile: "coding"`**, which does **not** include provider plugins—add the plugin id to **`tools.alsoAllow`** so agents can call **`hiveclaw_ping`**, **`remember_shared`**, etc.:
+
+```json
+"tools": {
+  "profile": "coding",
+  "alsoAllow": ["hiveclaw"]
+}
+```
+
+Alternatively set **`"tools": { "profile": "full" }`** if you want all registered tools without an explicit allowlist (see [OpenClaw tool configuration](https://docs.openclaw.ai/gateway/config-tools)).
 
 ## Bundled skill
 
@@ -24,16 +36,16 @@ Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as need
 
 ## Configuration (`HiveclawPluginConfig`)
 
-Plugin config fields map onto **`loadHiveclawConfig`** overrides:
+Set these under **`plugins.entries.hiveclaw.config`** in gateway JSON. OpenClaw resolves **`"${VAR}"`** references when loading config — use that for secrets (e.g. **`"chainPrivateKey": "${HIVECLAW_CHAIN_PRIVATE_KEY}"`**) so values come from the shell environment **without** the plugin bundle reading **`process.env`** (clean OpenClaw plugin install).
 
-| Field | Maps to |
+| Field | Purpose |
 |-------|---------|
-| `rpcUrl` | RPC endpoint |
+| `rpcUrl` | RPC endpoint (defaults match testnet if omitted) |
 | `indexerUrl` | 0G indexer |
 | `bootstrapContract` | Bootstrap address |
 | `hiveRegistryContract` | HiveRegistry address |
-| `storagePrivateKey` | Storage signer |
-| `chainPrivateKey` | Chain signer |
+| `storagePrivateKey` | Storage signer (required for uploads / storage smoke) |
+| `chainPrivateKey` | Chain signer (required for memory tools) |
 | `expectedChainId` | Expected chain |
 | `defaultHiveKeyHex` | Default hive symmetric key (32-byte hex) |
 | `hiveKeysJson` | JSON string: hive id → hex key |
@@ -41,7 +53,7 @@ Plugin config fields map onto **`loadHiveclawConfig`** overrides:
 | `privateComputerBaseUrl` | Private Computer API base |
 | `privateComputerApiKey` | Optional API key |
 
-Env vars such as `HIVECLAW_*` still apply when plugin fields are omitted.
+CLI and dashboard code paths still support **`loadHiveclawConfig()`** from **`hiveclaw-core/load-config`** (env-based); the OpenClaw plugin uses **gateway config only**.
 
 ## Tools
 

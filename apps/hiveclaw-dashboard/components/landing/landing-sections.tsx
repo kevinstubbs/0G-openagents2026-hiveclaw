@@ -212,8 +212,8 @@ function SolutionSection({ accent }: { accent: string }) {
               textAlign: "center",
             }}
           >
-            {["Encrypt", "↓", "0G Storage", "↓", "0G Chain pointer"].map((s) => (
-              <span key={s} style={{ color: s === "↓" ? C.border : C.muted }}>
+            {["Encrypt", "↓", "0G Storage", "↓", "0G Chain pointer"].map((s, i) => (
+              <span key={`memory-flow-${i}`} style={{ color: s === "↓" ? C.border : C.muted }}>
                 {s}
               </span>
             ))}

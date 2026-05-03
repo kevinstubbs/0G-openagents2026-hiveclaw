@@ -3,6 +3,18 @@
   "name": "HiveClaw",
   "description": "0G-backed HiveClaw memory backbone (Phase 1: hiveclaw_ping diagnostic tool).",
   "kind": "tool",
+  "contracts": {
+    "tools": [
+      "hiveclaw_ping",
+      "hiveclaw_list_my_hives",
+      "remember_shared",
+      "recall_shared",
+      "remember_private",
+      "recall_private",
+      "summarize_memory",
+      "hiveclaw_reflect"
+    ]
+  },
   "skills": ["./skills"],
   "configSchema": {
     "type": "object",
@@ -11,8 +23,15 @@
       "rpcUrl": { "type": "string", "description": "0G Chain JSON-RPC URL" },
       "indexerUrl": { "type": "string", "description": "0G Storage indexer URL" },
       "bootstrapContract": { "type": "string", "description": "HiveClawBootstrap contract address (hex)" },
-      "storagePrivateKey": { "type": "string", "description": "Optional funded key for storage smoke (prefer gateway secrets)" },
-      "expectedChainId": { "type": "integer", "description": "Optional expected chain id (e.g. 16602 testnet)" }
+      "hiveRegistryContract": { "type": "string", "description": "HiveRegistry contract address (hex)" },
+      "storagePrivateKey": { "type": "string", "description": "Storage signer key for uploads and storage smoke checks" },
+      "chainPrivateKey": { "type": "string", "description": "Chain signer key for membership checks and memory commits" },
+      "expectedChainId": { "type": "integer", "description": "Optional expected chain id (e.g. 16602 testnet)" },
+      "defaultHiveKeyHex": { "type": "string", "description": "Optional 32-byte hex hive symmetric key" },
+      "hiveKeysJson": { "type": "string", "description": "JSON string map of hive id to 32-byte hex hive key" },
+      "defaultHiveId": { "oneOf": [{ "type": "integer" }, { "type": "string" }], "description": "Default hive id used when tools omit hiveId" },
+      "privateComputerBaseUrl": { "type": "string", "description": "Private Computer API base URL for summarize/reflect tools" },
+      "privateComputerApiKey": { "type": "string", "description": "Optional Private Computer API key" }
     }
   },
   "activation": {

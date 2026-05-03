@@ -9,7 +9,6 @@ import {
   getLatestMemory,
   getMemberHives,
   isHiveMember,
-  loadHiveclawConfig,
   putHiveMemory,
   reflectAndCommitShared,
   resolveHiveKeyHex,
@@ -17,11 +16,12 @@ import {
   memoryKeyFromString,
   pingSummary,
   removeRegistryMember,
-  runPing,
   summarizeMemories,
   waitTxHash,
   ZeroHash,
 } from "hiveclaw-core";
+import { loadHiveclawConfig } from "hiveclaw-core/load-config";
+import { runPing } from "hiveclaw-core/ping-cli";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 

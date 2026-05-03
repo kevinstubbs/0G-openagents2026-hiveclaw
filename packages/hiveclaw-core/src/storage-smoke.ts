@@ -3,7 +3,7 @@ import { JsonRpcProvider, Wallet } from "ethers";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import type { HiveclawConfig } from "./config.js";
+import type { HiveclawConfig } from "./config-types.js";
 
 export type StorageSmokeResult =
   | { ok: true; rootHash: string; txHash: string; verified: boolean }
@@ -15,7 +15,7 @@ export async function runStorageSmoke(cfg: HiveclawConfig): Promise<StorageSmoke
     return {
       ok: false,
       skipped: true,
-      reason: "Storage smoke skipped: set HIVECLAW_STORAGE_PRIVATE_KEY to run upload/download proof.",
+      reason: "Storage smoke skipped: set storagePrivateKey in config (env-based: HIVECLAW_STORAGE_PRIVATE_KEY / gateway JSON).",
     };
   }
 

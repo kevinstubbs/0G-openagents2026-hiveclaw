@@ -6,5 +6,8 @@ export default defineConfig({
   dts: true,
   clean: true,
   target: "node20",
-  external: ["openclaw", "hiveclaw-core", "ethers", "@0gfoundation/0g-storage-ts-sdk"],
+  // Bundle hiveclaw-core so `openclaw plugins install` passes dependency scans:
+  // pnpm workspaces symlink hiveclaw-core outside the plugin dir, which OpenClaw rejects.
+  external: ["openclaw", "ethers", "@0gfoundation/0g-storage-ts-sdk"],
+  noExternal: ["hiveclaw-core"],
 });

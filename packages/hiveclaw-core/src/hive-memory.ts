@@ -1,4 +1,4 @@
-import type { HiveclawConfig } from "./config.js";
+import type { HiveclawConfig } from "./config-types.js";
 import { hashPlaintextUtf8 } from "./content-hash.js";
 import { decryptHivePayload, encryptHivePayload, parseHiveKeyHex } from "./crypto.js";
 import { commitMemory, getLatestMemory, memoryKeyFromString, type MemoryCommitView } from "./hive-registry.js";

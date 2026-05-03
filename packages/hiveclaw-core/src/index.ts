@@ -1,7 +1,7 @@
-export { loadHiveclawConfig, type HiveclawConfig } from "./config.js";
+export type { HiveclawConfig } from "./config-types.js";
 export { getChainId, getLatestBlockNumber, readBootstrapContract, type BootstrapReadResult } from "./chain.js";
 export { runStorageSmoke, type StorageSmokeResult } from "./storage-smoke.js";
-export { runPing, pingSummary, type HiveclawPingResult } from "./ping.js";
+export { pingSummary, runPingWithResolvedConfig, type HiveclawPingResult } from "./ping-resolved.js";
 export {
   HIVE_REGISTRY_ABI,
   ZeroHash,
