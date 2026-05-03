@@ -18,6 +18,10 @@ openclaw plugins install ./packages/openclaw-plugin-hiveclaw
 
 Merge `examples/openclaw-plugins-hiveclaw.json` into your gateway config as needed and allow tool **`hiveclaw_ping`** / plugin id per OpenClaw’s docs.
 
+## Bundled skill
+
+`openclaw.plugin.json` lists **`"skills": ["./skills"]`** (paths relative to the package root). When the plugin is enabled, OpenClaw loads those skill directories like any other [skills](https://docs.openclaw.ai/tools/skills) roots—same **`SKILL.md`** + YAML frontmatter format as workspace skills. This ships **`hiveclaw_memory`**, a longer operating guide than fits in tool descriptions. Plugin skills sit at **low precedence**: a skill with the **same name** in the agent workspace (or other higher-precedence roots) **overrides** the bundled copy.
+
 ## Configuration (`HiveclawPluginConfig`)
 
 Plugin config fields map onto **`loadHiveclawConfig`** overrides:

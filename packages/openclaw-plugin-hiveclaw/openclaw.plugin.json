@@ -3,6 +3,7 @@
   "name": "HiveClaw",
   "description": "0G-backed HiveClaw memory backbone (Phase 1: hiveclaw_ping diagnostic tool).",
   "kind": "tool",
+  "skills": ["./skills"],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

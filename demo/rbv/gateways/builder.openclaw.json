@@ -1,0 +1,26 @@
+{
+  "gateway": {
+    "port": 18790
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "demo/rbv/workspaces/builder"
+    }
+  },
+  "plugins": {
+    "entries": {
+      "hiveclaw": {
+        "enabled": true,
+        "config": {
+          "rpcUrl": "https://evmrpc-testnet.0g.ai",
+          "indexerUrl": "https://indexer-storage-testnet-turbo.0g.ai",
+          "expectedChainId": 16602,
+          "bootstrapContract": "0x4e6A80653B419777d281622249bd49Dc35131005",
+          "hiveRegistryContract": "0x496A34251Da57a3C1907325884323147D549626A",
+          "defaultHiveId": 1,
+          "privateComputerBaseUrl": "https://pc.0g.ai"
+        }
+      }
+    }
+  }
+}
