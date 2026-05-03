@@ -6,3 +6,9 @@ reviewer.env
 # Per-gateway OpenClaw state (created when you run the gateways)
 .openclaw-state/
 gateways/*.json.*
+
+# CLI demo / manual debug outputs (e.g. interactive-cli-demo.sh verification logs)
+scripts/_*
+scripts/*.out
+scripts/.e2e-demo-log.txt
+scripts/.demo-run-log.txt

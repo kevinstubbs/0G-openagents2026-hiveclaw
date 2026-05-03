@@ -15,7 +15,14 @@
   "tools": {
     "profile": "coding",
     "alsoAllow": [
-      "hiveclaw"
+      "hiveclaw_ping",
+      "hiveclaw_list_my_hives",
+      "remember_shared",
+      "recall_shared",
+      "remember_private",
+      "recall_private",
+      "summarize_memory",
+      "hiveclaw_reflect"
     ]
   },
   "agents": {

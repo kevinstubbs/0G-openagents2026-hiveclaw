@@ -190,6 +190,29 @@ bash demo/rbv/scripts/preopen-demo.sh --roles researcher,builder
 
 **Manual steps after the script runs:** paste the printed gateway token in **Overview → Gateway Access** for each tab, then paste **Message 1** to the first role and **Message 1** to the second role in order. Optional **Message 2** blocks are only if the agent output is unclear.
 
+### Interactive HiveClaw CLI demo (`interactive-cli-demo.sh`)
+
+Use this for a **video-friendly** walkthrough that uses **only the HiveClaw CLI** ([`apps/hiveclaw-cli`](../../apps/hiveclaw-cli) → `node apps/hiveclaw-cli/dist/cli.js`, same as `pnpm run doctor`). **No OpenClaw** and no browser.
+
+Before running: `pnpm run build` from repo root; fill `demo/rbv/env/researcher.env` and `demo/rbv/env/reviewer.env`; optionally copy root [`.env.example`](../../.env.example) to `.env` for `HIVECLAW_RPC_URL`, `HIVECLAW_HIVE_REGISTRY_CONTRACT`, etc.
+
+From **monorepo root**:
+
+```bash
+bash demo/rbv/scripts/interactive-cli-demo.sh
+```
+
+The script prints a short **description** and the exact **command** for the next step, then waits for **Enter** before running it. Flow:
+
+1. `doctor` — connectivity smoke  
+2. `hive my` — list hive ids for the Researcher wallet  
+3. `memory get` — read `demo/runs/<RUN_ID>/findings` (may fail if empty; OK on a fresh run)  
+4. `memory put` — write that shared segment from the Researcher wallet  
+5. `memory get` — read back as Researcher  
+6. `memory get` — read the **same segment** as Reviewer (different chain key, same hive keys JSON)
+
+Override **`RUN_ID`** or **`HIVE_ID`** via environment if needed. `defaultHiveId` is read from [`gateways/researcher.openclaw.json`](gateways/researcher.openclaw.json) when `HIVE_ID` is unset (`jq` optional).
+
 ## 5. Demo story (prompt order)
 
 **User task (paste once to Researcher):**
